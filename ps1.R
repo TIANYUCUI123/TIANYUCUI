@@ -93,7 +93,9 @@ datstu <- read.csv("C:/Users/cuiti/Master Study/Second Semester/econometrics/dat
 datstu<- na.omit(datstu, cols="rankplace")
 datstu<-datstu[!datstu$rankplace == "99", ]
 #match the ranking with the schoolcode#
-datstu$schoolad<-NA
+admit_school=c()
 for (i in 1:dim(datstu)[1]) {
-  datstu$schoolad[i]=datstu[i,(datstu$rankplace+4)[i]]
+  admit_school[i]=datstu[i,(datstu$rankplace+4)[i]]
 }
+datstu=cbind(datstu,admit_school)
+datstu[1:nrow(da)]
