@@ -14,7 +14,7 @@ nrow(datstu)
 
 #select the schoolcode varaibles#
 Nschool<-c("schoolcode1","schoolcode2","schoolcode3","schoolcode4","schoolcode5","schoolcode6")
-School <- datstu[Nschool]
+School <- datstu[,5:10]
 vec1 <- c(as.matrix(School))
 Nschool<-unique(vec1)
 #replace Nschool by dropping NA in the data set#
@@ -81,32 +81,19 @@ max(c1,c2)
 library(readr)
 datsss <- read.csv("C:/Users/cuiti/Master Study/Second Semester/econometrics/dat/datsss.csv",na.string=c("","NA"))
 datjss<- read.csv("C:/Users/cuiti/Master Study/Second Semester/econometrics/dat/datjss.csv",na.string=c("","NA"))
-#Y<-merge(datsss,Choice1,by="schoolcode")
-newinf<-matrix( nrow = 6165, ncol = 3)
-colnames(newinf,do.NULL = FALSE)
-colnames(newinf)<-c("cutoff","quality","size")
-dat2<-cbind(datsss,newinf)
+datsss<- datsss[!is.na(datsss$schoolname), ]
+datsss<- datsss[!duplicated(datsss[,c('schoolcode')]),]
+datsss$X <- NULL
+#merge with the choice#
+sss <- merge(Choice1, datsss, by.x = "vec1", by.y = "schoolcode")
+View(sss)
 
-rank<-c("rankplace")
-rank<-datstu[rank]
-rank<-na.omit(rank)
-School3<-cbind(ID,vec1,vec2)
-colnames(School3,do.NULL = FALSE)
-colnames(School3)<-c("ID","schoolcode","program")
-
-stu<-na.omit(datstu)
-stu<-stu[!apply(stu,1,function(x) {any(x==99)})]
-
-stu$schoolcode<-NA
-stu$schoolprogram<-NA
-for( i in 1:6){
-  stu$schoolcode[which(stu$rankplace==i)]=stu[,i+4][which(stu$rankplace==i)]
+#delete invalid ranking with na and 99#
+datstu <- read.csv("C:/Users/cuiti/Master Study/Second Semester/econometrics/dat/datstu.csv",na.string=c("","NA"))
+datstu<- na.omit(datstu, cols="rankplace")
+datstu<-datstu[!datstu$rankplace == "99", ]
+#match the ranking with the schoolcode#
+datstu$schoolad<-NA
+for (i in 1:dim(datstu)[1]) {
+  datstu$schoolad[i]=datstu[i,(datstu$rankplace+4)[i]]
 }
-
-Y<-merge(stu,School3,by="score")
-Y$score.x <- NULL
-colnames(Y)[colnames(Y)=="score.y"] <- "score"
-
-#question 2.1#
-
-
