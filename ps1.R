@@ -64,6 +64,7 @@ table(X[,2])
 
 Nprogram<-datstu[,c(11:16)]
 nrow(Nprogram)
+
 #omit the rows that have no value#
 Program <- na.omit(Nprogram)
 View(Program)
@@ -84,6 +85,7 @@ datjss<- read.csv("C:/Users/cuiti/Master Study/Second Semester/econometrics/dat/
 datsss<- datsss[!is.na(datsss$schoolname), ]
 datsss<- datsss[!duplicated(datsss[,c('schoolcode')]),]
 datsss$X <- NULL
+
 #merge with the choice#
 sss <- merge(Choice1, datsss, by.x = "vec1", by.y = "schoolcode")
 View(sss)
@@ -92,10 +94,17 @@ View(sss)
 datstu <- read.csv("C:/Users/cuiti/Master Study/Second Semester/econometrics/dat/datstu.csv",na.string=c("","NA"))
 datstu<- na.omit(datstu, cols="rankplace")
 datstu<-datstu[!datstu$rankplace == "99", ]
+
 #match the ranking with the schoolcode#
 admit_school=c()
 for (i in 1:dim(datstu)[1]) {
   admit_school[i]=datstu[i,(datstu$rankplace+4)[i]]
 }
 datstu=cbind(datstu,admit_school)
-datstu[1:nrow(da)]
+colnames(datstu)[colnames(datstu)=="admit_school"] <- "schoolcode"
+
+#match rank with the program code#
+datstu$admit_program<-NA
+for (i in 1:dim(datstu)[1]) {
+  admit_program[i]=datstu[i,(datstu$rankplace+10)[i]]
+}
