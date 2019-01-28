@@ -138,7 +138,7 @@ ss3<-as.data.frame(ss2)
 data2<- merge(ss2, sss, by.x = "schoolcode", by.y = "vec1",all=TRUE)
 data2 <- data2[ -c(2,6) ]
 colnames(data2)[colnames(data2)=="schoolcode"] <- "schoolprogram"
-data2<-
+data2 <- na.omit(data2)
 #question3#
 
 
