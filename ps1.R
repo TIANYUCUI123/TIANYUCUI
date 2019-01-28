@@ -78,7 +78,7 @@ c2<-nrow(Nschool1)-nrow(school1)
 max(c1,c2)
 
 
-#question2.1#
+#question2#
 library(readr)
 datsss <- read.csv("C:/Users/cuiti/Master Study/Second Semester/econometrics/dat/datsss.csv",na.string=c("","NA"))
 datjss<- read.csv("C:/Users/cuiti/Master Study/Second Semester/econometrics/dat/datjss.csv",na.string=c("","NA"))
@@ -104,7 +104,42 @@ datstu=cbind(datstu,admit_school)
 colnames(datstu)[colnames(datstu)=="admit_school"] <- "schoolcode"
 
 #match rank with the program code#
-datstu$admit_program<-NA
+admit_program=c()
 for (i in 1:dim(datstu)[1]) {
-  admit_program[i]=datstu[i,(datstu$rankplace+10)[i]]
+  admit_program[i]=as.character(datstu[i,(datstu$rankplace[i]+10)])
 }
+datstu=cbind(datstu,admit_program)
+colnames(datstu)[colnames(datstu)=="admit_program"] <- "program"
+
+#find the minimum score, average score,and size#
+stu<-c("X","score","agey","male","schoolcode","program")
+stu<-datstu[stu]
+stu<-stu[with(stu, order(schoolcode, program)),]
+cutoff<-tapply(stu$score, list(stu$schoolcode, stu$program), min)
+quality<-tapply(stu$score,list(stu$schoolcode,stu$program),mean)
+size<-tapply(stu$score,list(stu$schoolcode,stu$program),length)
+#raarrange database to prepare for merge#
+cutoff <- data.frame(schoolcode=rep(row.names(cutoff),ncol(cutoff)),
+                j=rep(colnames(cutoff),each=nrow(cutoff)),
+                cutoff=as.vector(cutoff))
+quality <- data.frame(schoolcode=rep(row.names(quality),ncol(quality)),
+                     j=rep(colnames(quality),each=nrow(quality)),
+                     quality=as.vector(quality))
+size <- data.frame(schoolcode=rep(row.names(size),ncol(size)),
+                     j=rep(colnames(size),each=nrow(size)),
+                     size=as.vector(size))
+ss2<-cbind(cutoff,quality,size)
+ss2 <- ss2[, !duplicated(colnames(ss2))]
+#merge the ss2 and  sss#
+sss$vec1<- with(sss, paste0(vec1, sep=",",vec2))
+ss2$schoolcode<- with(ss2, paste0(schoolcode,sep=",", j))
+sss<-as.data.frame(sss)
+ss3<-as.data.frame(ss2)
+data2<- merge(ss2, sss, by.x = "schoolcode", by.y = "vec1",all=TRUE)
+data2 <- data2[ -c(2,6) ]
+colnames(data2)[colnames(data2)=="schoolcode"] <- "schoolprogram"
+data2<-
+#question3#
+
+
+
