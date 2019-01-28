@@ -141,33 +141,27 @@ colnames(data2)[colnames(data2)=="schoolcode"] <- "schoolprogram"
 data2 <- na.omit(data2)
 write.csv(data2,"question2table.csv")
 #question3#
+# In this question, I treat the distance as the length between high school that students are admitted and junior high school#
 data3<-merge(datstu,datjss,by="jssdistrict")
 colnames(data3)[colnames(data3)=="X.x"]<-"studentID"
-colnames(data3)[colnames(data3)=="point_x"]<-"jsspoint.x"
-colnames(data3)[colnames(data3)=="point_y"]<-"jsspoint.y"
+colnames(data3)[colnames(data3)=="point_x"]<-"jsslong"
+colnames(data3)[colnames(data3)=="point_y"]<-"jsslat"
 data3$X.y <- NULL
 datsss<-subset(datsss, !duplicated(schoolcode))
-datstu
-<-merge(data3,datsss,by.x ="schoolcode1",by.y = "schoolcode")
-colnames(datstu)[colnames(datstu)=="ssslong"]<-"ssslong1"
-colnames(datstu)[colnames(datstu)=="ssslat"]<-"ssslat1"
-datstu$
-datstu<-merge(datstu,datsss,by.x ="schoolcode2",by.y = "schoolcode")
-colnames(datstu)[colnames(datstu)=="ssslong"]<-"ssslong2"
-colnames(datstu)[colnames(datstu)=="ssslat"]<-"ssslat2"
-datstu<-merge(datstu,datsss,by.x ="schoolcode3",by.y = "schoolcode")
-colnames(datstu)[colnames(datstu)=="ssslong"]<-"ssslong3"
-colnames(datstu)[colnames(datstu)=="ssslat"]<-"ssslat3"
-datstu<-merge(datstu,datsss,by.x ="schoolcode4",by.y = "schoolcode")
-colnames(datstu)[colnames(datstu)=="ssslong"]<-"ssslong4"
-colnames(datstu)[colnames(datstu)=="ssslat"]<-"ssslat4"
-datstu<-merge(datstu,datsss,by.x ="schoolcode5",by.y = "schoolcode")
-colnames(datstu)[colnames(datstu)=="ssslong"]<-"ssslong5"
-colnames(datstu)[colnames(datstu)=="ssslat"]<-"ssslat5"
-datstu<-merge(datstu,datsss,by.x ="schoolcode6",by.y = "schoolcode")
-colnames(datstu)[colnames(datstu)=="ssslong"]<-"ssslong6"
-colnames(datstu)[colnames(datstu)=="ssslat"]<-"ssslat6"
-dist <- function(ssslong1,ssslat1,jsslong1,jsslat1){
-  distance <- sqrt((69.172*(ssslong1-jsslong1)*cos(jsslat1/57.3))^2+(69.172*(ssslat1-jsslat1))^2)
-  return(distance)
-}
+datstu<-merge(data3,datsss,by ="schoolcode")
+datstu$distance<-NA
+datstu$distance<-sqrt((69.172*(datstu$ssslong.y-datstu$jsslong)*cos(datstu$jsslat/57.3))^2+(69.172*(datstu$ssslat.y-datstu$jsslat))^2)
+#question4#
+datstu <- read.csv("C:/Users/cuiti/Master Study/Second Semester/econometrics/dat/datstu.csv",na.string=c("","NA"))
+datstu<-datstu[with(datstu, order(rankplace)),]
+datstu<- na.omit(datstu, cols="rankplace")
+datstu<-datstu[!datstu$rankplace == "99", ]
+cutoff4<-tapply(datstu$score, list(datstu$rankplace), min)
+cutoff4<-t(cutoff4)
+quality4<-tapply(datstu$score,list(datstu$rankplace),mean)
+quality4<-t(quality4)
+length4<-tapply(datstu$score,list(datstu$rankplace),length)
+length4<-t(length4)
+data4<-rbind(cutoff4,quality4,length4)
+write.csv(data4,"question4data.csv")
+#question5#
