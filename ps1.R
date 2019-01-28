@@ -139,7 +139,35 @@ data2<- merge(ss2, sss, by.x = "schoolcode", by.y = "vec1",all=TRUE)
 data2 <- data2[ -c(2,6) ]
 colnames(data2)[colnames(data2)=="schoolcode"] <- "schoolprogram"
 data2 <- na.omit(data2)
+write.csv(data2,"question2table.csv")
 #question3#
-
-
-
+data3<-merge(datstu,datjss,by="jssdistrict")
+colnames(data3)[colnames(data3)=="X.x"]<-"studentID"
+colnames(data3)[colnames(data3)=="point_x"]<-"jsspoint.x"
+colnames(data3)[colnames(data3)=="point_y"]<-"jsspoint.y"
+data3$X.y <- NULL
+datsss<-subset(datsss, !duplicated(schoolcode))
+datstu
+<-merge(data3,datsss,by.x ="schoolcode1",by.y = "schoolcode")
+colnames(datstu)[colnames(datstu)=="ssslong"]<-"ssslong1"
+colnames(datstu)[colnames(datstu)=="ssslat"]<-"ssslat1"
+datstu$
+datstu<-merge(datstu,datsss,by.x ="schoolcode2",by.y = "schoolcode")
+colnames(datstu)[colnames(datstu)=="ssslong"]<-"ssslong2"
+colnames(datstu)[colnames(datstu)=="ssslat"]<-"ssslat2"
+datstu<-merge(datstu,datsss,by.x ="schoolcode3",by.y = "schoolcode")
+colnames(datstu)[colnames(datstu)=="ssslong"]<-"ssslong3"
+colnames(datstu)[colnames(datstu)=="ssslat"]<-"ssslat3"
+datstu<-merge(datstu,datsss,by.x ="schoolcode4",by.y = "schoolcode")
+colnames(datstu)[colnames(datstu)=="ssslong"]<-"ssslong4"
+colnames(datstu)[colnames(datstu)=="ssslat"]<-"ssslat4"
+datstu<-merge(datstu,datsss,by.x ="schoolcode5",by.y = "schoolcode")
+colnames(datstu)[colnames(datstu)=="ssslong"]<-"ssslong5"
+colnames(datstu)[colnames(datstu)=="ssslat"]<-"ssslat5"
+datstu<-merge(datstu,datsss,by.x ="schoolcode6",by.y = "schoolcode")
+colnames(datstu)[colnames(datstu)=="ssslong"]<-"ssslong6"
+colnames(datstu)[colnames(datstu)=="ssslat"]<-"ssslat6"
+dist <- function(ssslong1,ssslat1,jsslong1,jsslat1){
+  distance <- sqrt((69.172*(ssslong1-jsslong1)*cos(jsslat1/57.3))^2+(69.172*(ssslat1-jsslat1))^2)
+  return(distance)
+}
