@@ -191,7 +191,9 @@ stdcutff<-sd(cutff)
 averagequality<-mean(quality1,quality2,quality3,quality4,quality5,quality6)
 quality<-c(quality1,quality2,quality3,quality4,quality5,quality6)
 stdquality<-sd(quality)
-
-
-
+data4<-c(averagecutoff,stdcutff,averagequality,stdquality)
+data4 <- matrix(data4, nrow = 2, ncol = 2, byrow = TRUE)
+colnames(data4) <- c("cutoff","quality")
+rownames(data4) <- c("average","std")
+write.csv(data4,"question4table.csv")
 #question5#
