@@ -152,9 +152,8 @@ datstu<-merge(data3,datsss,by ="schoolcode")
 datstu$distance<-NA
 datstu$distance<-sqrt((69.172*(datstu$ssslong.y-datstu$jsslong)*cos(datstu$jsslat/57.3))^2+(69.172*(datstu$ssslat.y-datstu$jsslat))^2)
 
-#question4#
-datstu <- read.csv("C:/Users/cuiti/Master Study/Second Semester/econometrics/dat/datstu.csv",na.string=c("","NA"))
-datstu<- datstu[!is.na(datstu$score), ]
+#question4-meaning1: I treat choice as matched schoolcode and program. In each choice that are valid, which indicates that no na in the choice and score,
+#I calculate the min of those scores, treat as the cutoff of the choice1. Same logic is applied in other choices and qualities#
 c<-c("score","schoolcode1","choicepgm1")
 rankchoice1<-datstu[c]
 rankchoice1<-na.omit(rankchoice1)
@@ -196,6 +195,74 @@ data4 <- matrix(data4, nrow = 2, ncol = 2, byrow = TRUE)
 colnames(data4) <- c("cutoff","quality")
 rownames(data4) <- c("average","std")
 write.csv(data4,"question4table.csv")
+
+#question4-meaning2#
+c2<-c("schoolcode1","choicepgm1")
+rchoice1<-datstu[c2]
+rchoice1$schoolcode1<- with(rchoice1, paste0(schoolcode1,sep=",", choicepgm1))
+rchoice1$choicepgm1<-NULL
+colnames(rchoice1)[colnames(rchoice1)=="schoolcode1"]<-"schoolprogram"
+rchoice1<-merge(rchoice1,data2,by ="schoolprogram")
+cutoff_mean_choice1<-mean(rchoice1$cutoff)
+cutoff_std_choice1<- sd(rchoice1$cutoff)
+quality_mean_choice1<-mean(rchoice1$quality)
+quality_std_choice1<-sd(rchoice1$quality)
+
+d2<-c("schoolcode2","choicepgm2")
+rchoice2<-datstu[d2]
+rchoice2$schoolcode2<- with(r1, paste0(schoolcode2,sep=",", choicepgm2))
+rchoice2$choicepgm2<-NULL
+colnames(rchoice2)[colnames(rchoice2)=="schoolcode2"]<-"schoolprogram"
+rchoice1<-merge(rchoice2,data2,by ="schoolprogram")
+cutoff_mean_choice2<-mean(rchoice2$cutoff)
+cutoff_std_choice2<- sd(rchoice2$cutoff)
+quality_mean_choice2<-mean(rchoice2$quality)
+quality_std_choice2<-sd(rchoice2$quality)
+
+f2<-c("schoolcode3","choicepgm3")
+rchoice3<-datstu[f2]
+rchoice3$schoolcode3<- with(rchoice3, paste0(schoolcode3,sep=",", choicepgm3))
+rchoice3$choicepgm3<-NULL
+colnames(rchoice3)[colnames(rchoice3)=="schoolcode3"]<-"schoolprogram"
+rchoice1<-merge(rchoice3,data2,by ="schoolprogram")
+cutoff_mean_choice3<-mean(rchoice3$cutoff)
+cutoff_std_choice3<- sd(rchoice3$cutoff)
+quality_mean_choice3<-mean(rchoice3$quality)
+quality_std_choice3<-sd(rchoice3$quality)
+
+g2<-c("schoolcode4","choicepgm4")
+rchoice4<-datstu[g2]
+rchoice4$schoolcode4<- with(rchoice4, paste0(schoolcode4,sep=",", choicepgm4))
+rchoice4$choicepgm4<-NULL
+colnames(rchoice4)[colnames(rchoice4)=="schoolcode4"]<-"schoolprogram"
+rchoice4<-merge(rchoice4,data2,by ="schoolprogram")
+cutoff_mean_choice4<-mean(rchoice4$cutoff)
+cutoff_std_choice4<- sd(rchoice4$cutoff)
+quality_mean_choice4<-mean(rchoice4$quality)
+quality_std_choice4<-sd(rchoice4$quality)
+
+h2<-c("schoolcode3","choicepgm3")
+rchoice5<-datstu[h2]
+rchoice5$schoolcode5<- with(rchoice5, paste0(schoolcode5,sep=",", choicepgm5))
+rchoice5$choicepgm5<-NULL
+colnames(rchoice5)[colnames(rchoice5)=="schoolcode5"]<-"schoolprogram"
+rchoice5<-merge(rchoice5,data2,by ="schoolprogram")
+cutoff_mean_choice5<-mean(rchoice5$cutoff)
+cutoff_std_choice5<- sd(rchoice5$cutoff)
+quality_mean_choice5<-mean(rchoice5$quality)
+quality_std_choice5<-sd(rchoice5$quality)
+
+j2<-c("schoolcode6","choicepgm6")
+rchoice6<-datstu[j2]
+rchoice6$schoolcode6<- with(rchoice6, paste0(schoolcode6,sep=",", choicepgm6))
+rchoice6$choicepgm6<-NULL
+colnames(rchoice6)[colnames(rchoice6)=="schoolcode6"]<-"schoolprogram"
+rchoice6<-merge(rchoice6,data2,by ="schoolprogram")
+cutoff_mean_choice6<-mean(rchoice6$cutoff)
+cutoff_std_choice6<- sd(rchoice6$cutoff)
+quality_mean_choice6<-mean(rchoice6$quality)
+quality_std_choice6<-sd(rchoice6$quality)
+
 #question5#
 View(data2)
 data5<-split(data2,cut(data2$cutoff,seq(1,nrow(data2),length.out=10)))
