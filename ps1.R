@@ -198,5 +198,5 @@ rownames(data4) <- c("average","std")
 write.csv(data4,"question4table.csv")
 #question5#
 View(data2)
-split(data2,cut(d$cutoff,seq(0,nrow(data2),length.out=10)))
+data5<-split(data2,cut(data2$cutoff,seq(1,nrow(data2),length.out=10)))
 
