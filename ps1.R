@@ -152,8 +152,7 @@ datstu<-merge(data3,datsss,by ="schoolcode")
 datstu$distance<-NA
 datstu$distance<-sqrt((69.172*(datstu$ssslong.y-datstu$jsslong)*cos(datstu$jsslat/57.3))^2+(69.172*(datstu$ssslat.y-datstu$jsslat))^2)
 
-#question4-meaning1: I treat choice as matched schoolcode and program. In each choice that are valid, which indicates that no na in the choice and score,
-#I calculate the min of those scores, treat as the cutoff of the choice1. Same logic is applied in other choices and qualities#
+#question4-meaning1: I treat choice as matched schoolcode and program. In each choice that are valid, which indicates that no na in the choice and score,and I calculate the min of those scores, treat as the cutoff of the choice1. Same logic is applied in other choices and qualities#
 c<-c("score","schoolcode1","choicepgm1")
 rankchoice1<-datstu[c]
 rankchoice1<-na.omit(rankchoice1)
@@ -253,7 +252,8 @@ quality_mean_choice5<-mean(rchoice5$quality)
 quality_std_choice5<-sd(rchoice5$quality)
 
 j2<-c("schoolcode6","choicepgm6")
-rchoice6<-datstu[j2]
+rchoice6<-datstu[j2](rchoice6)
+rchoice6<-data.frame
 rchoice6$schoolcode6<- with(rchoice6, paste0(schoolcode6,sep=",", choicepgm6))
 rchoice6$choicepgm6<-NULL
 colnames(rchoice6)[colnames(rchoice6)=="schoolcode6"]<-"schoolprogram"
@@ -262,6 +262,13 @@ cutoff_mean_choice6<-mean(rchoice6$cutoff)
 cutoff_std_choice6<- sd(rchoice6$cutoff)
 quality_mean_choice6<-mean(rchoice6$quality)
 quality_std_choice6<-sd(rchoice6$quality)
+#rearrange to a table#
+data4new<-c(cutoff_mean_choice1,cutoff_mean_choice2,cutoff_mean_choice3,cutoff_mean_choice4,cutoff_mean_choice5,cutoff_mean_choice6, cutoff_std_choice1,cutoff_std_choice2,cutoff_std_choice3,cutoff_std_choice4,cutoff_std_choice5,cutoff_std_choice6,quality_mean_choice1,quality_mean_choice2,quality_mean_choice3,quality_mean_choice4,quality_mean_choice5,quality_mean_choice6,quality_std_choice1,quality_std_choice2,quality_std_choice3,quality_std_choice4,quality_std_choice5,quality_std_choice6)
+data4new <- matrix(data4new, nrow = 4, ncol = 6, byrow = TRUE)
+colnames(data4new) <- c("rank1","rank2","rank3","rank4","rank5","rank6")
+rownames(data4new) <- c("averagecutoff","stdcutoff","averagequality","stdquality")
+data4new
+write.csv(data4new,"question4table.csv")
 
 #question5#
 View(data2)

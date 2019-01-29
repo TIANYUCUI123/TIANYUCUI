@@ -1,3 +1,5 @@
-"","cutoff","quality"
-"average",165,3.61478445646026
-"std",291.087861688376,0.337185274688083
+"","rank1","rank2","rank3","rank4","rank5","rank6"
+"averagecutoff",NA,NA,NA,NA,NA,NA
+"stdcutoff",NA,NA,NA,NA,NA,NA
+"averagequality",NA,NA,NA,NA,NA,NA
+"stdquality",NA,NA,NA,NA,NA,NA
