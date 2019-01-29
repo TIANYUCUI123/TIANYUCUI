@@ -154,33 +154,43 @@ datstu$distance<-sqrt((69.172*(datstu$ssslong.y-datstu$jsslong)*cos(datstu$jssla
 
 #question4#
 datstu <- read.csv("C:/Users/cuiti/Master Study/Second Semester/econometrics/dat/datstu.csv",na.string=c("","NA"))
-datstu<-subset(datstu, !duplicated(score))
 datstu<- datstu[!is.na(datstu$score), ]
 c<-c("score","schoolcode1","choicepgm1")
 rankchoice1<-datstu[c]
-scoremin1<-min(rankchoice1$score)
-scoremean1<-mean(rankchoice1$score)
+rankchoice1<-na.omit(rankchoice1)
+cutoff1<-min(rankchoice1$score)
+quality1<-mean(rankchoice1$score)
 d<-c("score","schoolcode2","choicepgm2")
 rankchoice2<-datstu[d]
-scoremin2<-min(rankchoice2$score)
-scoremean2<-mean(rankchoice2$score)
+rankchoice2<-na.omit(rankchoice2)
+cutoff2<-min(rankchoice2$score)
+quality2<-mean(rankchoice2$score)
 f<-c("score","schoolcode3","choicepgm3")
 rankchoice3<-datstu[f]
-scoremin3<-min(rankchoice3$score)
-scoremean3<-mean(rankchoice3$score)
+rankchoice3<-na.omit(rankchoice3)
+cutoff3<-min(rankchoice3$score)
+quality3<-mean(rankchoice3$score)
 g<-c("score","schoolcode4","choicepgm4")
 rankchoice4<-datstu[g]
-scoremin4<-min(rankchoice4$score)
-scoremean4<-mean(rankchoice4$score)
+rankchoice4<-na.omit(rankchoice4)
+cutoff4<-min(rankchoice4$score)
+quality4<-mean(rankchoice4$score)
 h<-c("score","schoolcode5","choicepgm5")
 rankchoice5<-datstu[h]
-scoremin5<-min(rankchoice5$score)
-scoremean5<-mean(rankchoice5$score)
+rankchoice5<-na.omit(rankchoice5)
+cutoff5<-min(rankchoice5$score)
+quality5<-mean(rankchoice5$score)
 j<-c("score","schoolcode6","choicepgm6")
 rankchoice6<-datstu[j]
-scoremin6<-min(rankchoice6$score)
-scoremean6<-mean(rankchoice6$score)
-
+rankchoice6<-na.omit(rankchoice6)
+cutoff6<-min(rankchoice6$score)
+quality6<-mean(rankchoice6$score)
+averagecutoff<-mean(cutoff1,cutoff2,cutoff3,cutoff4,cutoff5,cutoff6)
+cutff<-c(cutoff1,cutoff2,cutoff3,cutoff4,cutoff5,cutoff6)
+stdcutff<-sd(cutff)
+averagequality<-mean(quality1,quality2,quality3,quality4,quality5,quality6)
+quality<-c(quality1,quality2,quality3,quality4,quality5,quality6)
+stdquality<-sd(quality)
 
 
 
