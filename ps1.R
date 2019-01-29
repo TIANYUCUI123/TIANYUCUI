@@ -151,17 +151,37 @@ datsss<-subset(datsss, !duplicated(schoolcode))
 datstu<-merge(data3,datsss,by ="schoolcode")
 datstu$distance<-NA
 datstu$distance<-sqrt((69.172*(datstu$ssslong.y-datstu$jsslong)*cos(datstu$jsslat/57.3))^2+(69.172*(datstu$ssslat.y-datstu$jsslat))^2)
+
 #question4#
 datstu <- read.csv("C:/Users/cuiti/Master Study/Second Semester/econometrics/dat/datstu.csv",na.string=c("","NA"))
-datstu<-datstu[with(datstu, order(rankplace)),]
-datstu<- na.omit(datstu, cols="rankplace")
-datstu<-datstu[!datstu$rankplace == "99", ]
-cutoff4<-tapply(datstu$score, list(datstu$rankplace), min)
-cutoff4<-t(cutoff4)
-quality4<-tapply(datstu$score,list(datstu$rankplace),mean)
-quality4<-t(quality4)
-length4<-tapply(datstu$score,list(datstu$rankplace),length)
-length4<-t(length4)
-data4<-rbind(cutoff4,quality4,length4)
-write.csv(data4,"question4data.csv")
+datstu<-subset(datstu, !duplicated(score))
+datstu<- datstu[!is.na(datstu$score), ]
+c<-c("score","schoolcode1","choicepgm1")
+rankchoice1<-datstu[c]
+scoremin1<-min(rankchoice1$score)
+scoremean1<-mean(rankchoice1$score)
+d<-c("score","schoolcode2","choicepgm2")
+rankchoice2<-datstu[d]
+scoremin2<-min(rankchoice2$score)
+scoremean2<-mean(rankchoice2$score)
+f<-c("score","schoolcode3","choicepgm3")
+rankchoice3<-datstu[f]
+scoremin3<-min(rankchoice3$score)
+scoremean3<-mean(rankchoice3$score)
+g<-c("score","schoolcode4","choicepgm4")
+rankchoice4<-datstu[g]
+scoremin4<-min(rankchoice4$score)
+scoremean4<-mean(rankchoice4$score)
+h<-c("score","schoolcode5","choicepgm5")
+rankchoice5<-datstu[h]
+scoremin5<-min(rankchoice5$score)
+scoremean5<-mean(rankchoice5$score)
+j<-c("score","schoolcode6","choicepgm6")
+rankchoice6<-datstu[j]
+scoremin6<-min(rankchoice6$score)
+scoremean6<-mean(rankchoice6$score)
+
+
+
+
 #question5#
