@@ -18,12 +18,12 @@ eps<-rnorm(10000, mean = 2, sd = 1)
 Y=0.5+1.2*X1-0.9*X2+0.1*X3+eps
 View(Y)
 #Create ydummy variable#
-y<-as.numeric(Y>mean(Y))
+y<-as.numeric(Y>mean(Y))# in the numeric, there is a test, and if Y is greater than mean(Y),it will turn to be 1#
 
 
 #PROBLEM2#
 #Calculate the correlation between Y and X1#
-cor<-cor(Y,X1)
+cor<-cor(Y,X1) #I use the cor function instead of calculation by myself#
 DISTANCE=cor - 1.2
 #run the regression of Y and X variables
 reg1<-lm(formula = Y ~ X1+X2+X3 )
@@ -49,7 +49,7 @@ std<- diag(sqrt(solve(t(X)%*% X)*VARe))
 std.boot<-NA
 datanew<- cbind(X,Y)
 for (i  in 1:49){
-  bootdata <- datanew[sample(nrow(datanew), 10000, replace = TRUE),] 
+  bootdata <- datanew[sample(nrow(datanew), 10000, replace = TRUE),] #sample each row with replacement, and repeat for 49 times#
   beta<- solve(t(datanew[,c(1:4)])%*%datanew[,c(1:4)])%*%t(datanew[,c(1:4)])%*%datanew[,5] 
   VARe <- as.numeric(t(datanew[,5]-datanew[,c(1:4)]%*%beta)%*%(datanew[,5]-datanew[,c(1:4)]%*%beta)/(10000-4) )
   std<- diag(sqrt(solve(t(datanew[,c(1:4)])%*% datanew[,c(1:4)])*VARe))
@@ -73,7 +73,7 @@ View (std.boot)
 
 #PROBLEM3#
 #write a function that returns the liklelihood of the probit#
-#generate a uniform distribution with range 1:3#
+#reupdate the database to help calculate in next steps#
 X0<-rep(1,10000)
 X1<-runif(10000, min=1, max=3) 
 X2<-rgamma(10000, 3, rate = 0.5)
@@ -87,24 +87,24 @@ View(X)
 #write a likelihood function#
 probit.nll <- function (mlebeta,X,y) {
   # linear predictor
-  eta <- X %*% mlebeta
+  eta <- X %*% mlebeta 
   # probability
   p <- pnorm(eta)
   # negative log-likelihood(we can get the maximize likelihood function thereby)
   loglk <-(-sum((1 - y) * log(1 - p) + y * log(p)))
 }
-probit<-probit.nll (c(0,0,0,0),X,y)
+probit<-probit.nll (c(0,0,0,0),X,y) # check the validity of the function#
 print(probit)
 
 #Implement the steepest ascent optimization algorithm to maximize that likelihood#
 #gradient function in r#
 probit.gr<- function (mlebeta,X,y) {
-  Phi = pnorm(X %*% mlebeta) # Phi is Cumulative probability
-  phi = dnorm(X %*% mlebeta) # phi is Probability Density
-  n = length(y)           # sample size
-  k = length(mlebeta)         # number of coefficients
-  g = t(matrix(rep(phi/Phi,k),nrow=n)*X) %*% y - t(matrix(rep(phi/(1-Phi),k),nrow=n)*X) %*% (1-y)
-  g = -g
+  Phi <- pnorm(X %*% mlebeta) # Phi is Cumulative probability
+  phi <- dnorm(X %*% mlebeta) # phi is Probability Density
+  n <- length(y)           # sample size
+  k <- length(mlebeta)         # number of coefficients
+  g <-t(matrix(rep(phi/Phi,k),nrow=n)*X) %*% y - t(matrix(rep(phi/(1-Phi),k),nrow=n)*X) %*% (1-y)
+  g <- -g
    return(g)
 } 
 
@@ -130,7 +130,7 @@ while (diff> 0.01){
   
 }
 View (newbeta)
-glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))$coefficients
+glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))$coefficients#check with beta coefficient of the function with glm#
 #PROBLEM4#
 ####################################probit#####################################
 #write the optimization of the probit model#
@@ -169,7 +169,16 @@ linearparameter<- lm(y ~ X1 + X2 + X3 )$coefficient
 ############################Combine the results together########################
 parameter<-rbind(probitparameter,logitparameter,linearparameter)
 View(parameter)
-
+###########################interpret the significane level#######################
+fit1<-glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))
+pvalueprobit<-summary(fit1)$coefficients[,4] #find the p-value of the glm for probit model
+fit2<-glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit"))
+pvaluelogit<-summary(fit2)$coefficients[,4] #find the p-value of the glm for logit model
+fit3<-lm(y ~ X1 + X2 + X3 )
+pvalueols<-summary(fit3)$coefficients[,4]#find the p-value of the glm for OLS regression
+pvalue<-cbind(pvalueprobit,pvaluelogit,pvalueols)
+View(pvalue)
+#interpret and compare with the significance level: I detected that intercept and X1,X2 are all very significant(less than 0.001%)in all models, however, X3 is insigniciant no matter which models to choose.
 #PROBLEM5#
 
 # Marginal effects (ME) calculation in probit model
@@ -192,18 +201,17 @@ for (i in 1:4) {
 View(melogis)
 
 #compute the standard deviation of probit model using the delta method#
-install.packages("numDeriv")
-library(numDeriv)
+library(numDeriv)# I use the package called numDeriv since the package will help me calculate the jacobian#
 Xmean<-apply(X,2,mean)
 View(Xmean)
 View(mlebeta)
 maginX<-function(mlebeta,X = Xmean){
   phi<-dnorm(X %*% t(mlebeta))%*% mlebeta
-}
-jac<-jacobian(maginX,mlebeta)
+}  # I first generate a function that represent the marginal effect of X
+jac<-jacobian(maginX,mlebeta)# using the jacobian function which can give me 4*4 matrix of partial derivative of marginal effect of beta#
 glmprobit<-glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))
 variance<-vcov(glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit")))
-jvariance<-jac%*%variance%*%t(jac)
+jvariance<-jac%*%variance%*%t(jac)#variance covariace matrix for the std error of X mean#
 std<-diag(sqrt(jvariance))
 View(std)
 #compute the standard deviation of logit model using the delta method#
