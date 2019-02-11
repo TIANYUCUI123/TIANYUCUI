@@ -203,4 +203,29 @@ m <- margins(x)
 m
 #compute the standard deviation using the delta method#
 
-#compute the standard deviation using the bootstrap 
+#compute the standard deviation using the bootstrap of probit model #
+abootprobit<-NA
+data<-meprobit
+for (i  in 1:499){
+  bootdata <- meprobit[sample(nrow(meprobit), 10000, replace = TRUE),] 
+  averagex<- c(mean(bootdata[,1]),mean(bootdata[,2]),mean(bootdata[,3]),mean(bootdata[,4]))
+  abootprobit<-rbind(abootprobit,averagex)
+  
+}
+abootprobit<-abootprobit[-1,]
+View (abootprobit)
+stdabootprobit<-c(sd(abootprobit[,1]),sd(abootprobit[,2]),sd(abootprobit[,3]),sd(abootprobit[,4]))
+View (stdabootprobit)
+#compute the standard deviation using the bootstrap of logit model#
+abootlogit<-NA
+data<-melogis
+for (i  in 1:499){
+  bootdata <- melogis[sample(nrow(melogis), 10000, replace = TRUE),] 
+  averagex<- c(mean(bootdata[,1]),mean(bootdata[,2]),mean(bootdata[,3]),mean(bootdata[,4]))
+  abootlogit<-rbind(abootlogit,averagex)
+  
+}
+abootlogit<-abootlogit[-1,]
+View (abootlogit)
+stdabootmelogis<-c(sd(abootlogit[,1]),sd(abootlogit[,2]),sd(abootlogit[,3]),sd(abootlogit[,4]))
+View (stdabootmelogis)
