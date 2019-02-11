@@ -165,9 +165,19 @@ glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit"))$coefficients
 X<-as.matrix(cbind(1,X1,X2,X3))
 Y<-as.matrix(Y)
 y<-as.numeric(Y>mean(Y))
+meansquare <- function(olsbeta, X, y){
+  min <- t(y-X%*%olsbeta)%*%(y-X%*%olsbeta)
+
+}
+olsbeta <-c(-0.1, -0.3, 0.001, 0.01) # arbitrary starting parameters
+optimols <- optim(olsbeta, meansquare ,X = X, y = y, method = 'BFGS', hessian=TRUE)
+olsparameter<-optimols$par
+olsparameter
+#check with R's built-in function
 linearparameter<- lm(y ~ X1 + X2 + X3 )$coefficient
+linearparameter
 ############################Combine the results together########################
-parameter<-rbind(probitparameter,logitparameter,linearparameter)
+parameter<-rbind(probitparameter,logitparameter,olsparameter)
 View(parameter)
 ###########################interpret the significane level#######################
 fit1<-glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))
@@ -179,6 +189,8 @@ pvalueols<-summary(fit3)$coefficients[,4]#find the p-value of the glm for OLS re
 pvalue<-cbind(pvalueprobit,pvaluelogit,pvalueols)
 View(pvalue)
 #interpret and compare with the significance level: I detected that intercept and X1,X2 are all very significant(less than 0.001%)in all models, however, X3 is insigniciant no matter which models to choose.
+
+
 #PROBLEM5#
 
 # Marginal effects (ME) calculation in probit model
