@@ -55,6 +55,7 @@ for (i  in 1:49){
   std.boot<-rbind(std.boot,std)
   
 }
+std.boot<-std.boot[-1,]
 View (std.boot)
 #take 499 samples with replacement from sample x of size 10000
 std.boot<-NA
@@ -66,8 +67,8 @@ std.boot<-NA
     std.boot<-rbind(std.boot,std)
     
   }
+std.boot<-std.boot[-1,]
 View (std.boot)
-
 
 #PROBLEM3#
 #write a function that returns the liklelihood of the probit#
@@ -97,13 +98,13 @@ print(probit)
 #Implement the steepest ascent optimization algorithm to maximize that likelihood#
 #gradient function in r#
 probit.gr<- function (mlebeta,X,y) {
-Phi = pnorm(X %*% mlebeta) # Phi is Cumulative probability
-phi = dnorm(X %*% mlebeta) # phi is Probability Density
-n = length(y)           # sample size
-k = length(mlebeta)         # number of coefficients
-g = t(matrix(rep(phi/Phi,k),nrow=n)*X) %*% y - t(matrix(rep(phi/(1-Phi),k),nrow=n)*X) %*% (1-y)
-g = -g
-  return(g)
+  Phi = pnorm(X %*% mlebeta) # Phi is Cumulative probability
+  phi = dnorm(X %*% mlebeta) # phi is Probability Density
+  n = length(y)           # sample size
+  k = length(mlebeta)         # number of coefficients
+  g = t(matrix(rep(phi/Phi,k),nrow=n)*X) %*% y - t(matrix(rep(phi/(1-Phi),k),nrow=n)*X) %*% (1-y)
+  g = -g
+   return(g)
 } 
 
 probit.gr  (c(0,0,0,0),X,y)
@@ -142,15 +143,14 @@ probit <- optim(inits, probit.nll,probit.gr, method = "BFGS", hessian = TRUE)
 probitparameter<-probit$par
 # checking with R's built-in function
 glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))$coefficients
-
 #####################################logit#####################################
 X<-as.matrix(cbind(1,X1,X2,X3))
 Y<-as.matrix(Y)
 y<-as.numeric(Y>mean(Y))
 # Likelihood of the logit model#
 logit.loglk <- function(mlebeta, X, y){
-loglk <- sum(y * plogis(X%*%mlebeta, log.p=TRUE) + (1-y) * plogis(-(X%*%mlebeta), log.p=TRUE))
-return(-loglk)
+  loglk <- sum(y * plogis(X%*%mlebeta, log.p=TRUE) + (1-y) * plogis(-(X%*%mlebeta), log.p=TRUE))
+   return(-loglk)
 }
 #optimization problem#
 mlebeta <-c(-0.1, -0.3, 0.001, 0.01) # arbitrary starting parameters
@@ -170,11 +170,34 @@ parameter<-rbind(probitparameter,logitparameter,linearparameter)
 View(parameter)
 
 #PROBLEM5#
-# logit model marginal effect#
-reglogit <- glm(y ~ X1 + X2 +X3, family=binomial(link="logit"))
-summary(reglogit)
-X <- cbind(1, X1, X2,X3)???
-Xmean<-apply(X,2,mean)
-Xmean
-coef<- summary(reglogit)$coefficient
-# Marginal effects (ME) calculation
+
+# Marginal effects (ME) calculation in probit model
+phi<-dnorm(X %*% mlebeta)
+meprobit<-matrix(0,nrow = 10000,ncol = 4)
+mlebeta<-as.matrix(mlebeta)
+View(mlebeta)
+for (i in 1:4) {
+  meprobit[,i] <-phi %*% mlebeta[i,]
+  
+}
+###########check with R-package probit model######################
+library(margins)
+x <- glm(y ~ X1 + X2 +X3, family=binomial(link="probit"))
+m <- margins(x)
+m
+#Marginal effect (ME) calculation in logit model
+philogis<-dlogis(X %*% mlebeta)
+melogis<-matrix(0,nrow = 10000,ncol = 4)
+mlebeta<-as.matrix(mlebeta)
+
+for (i in 1:4) {
+  melogis[,i] <-phi %*% mlebeta[i,]
+  
+}
+View(melogis)
+###########check with R-package probit model######################
+library(margins)
+x <- glm(y ~ X1 + X2 +X3, family=binomial(link="logit"))
+m <- margins(x)
+m
+#compute the standard deviation using the delta method#
