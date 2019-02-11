@@ -190,14 +190,13 @@ pvalueprobit<-summary(fit1)$coefficients[,4] #find the p-value of the glm for pr
 fit2<-glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit"))
 pvaluelogit<-summary(fit2)$coefficients[,4] #find the p-value of the glm for logit model
 fit3<-lm(y ~ X1 + X2 + X3 )
-pvalueols<-summary(fit3)$coefficients[,4]#find the p-value of the glm for OLS regression
+pvalueols<-summary(fit3)$coefficients[,4]#find the p-value of OLS regression
 pvalue<-cbind(pvalueprobit,pvaluelogit,pvalueols)
 View(pvalue)
 #interpret and compare with the significance level: I detected that intercept and X1,X2 are all very significant(less than 0.001%)in all models, however, X3 is insigniciant no matter which models to choose.
 
 
 #PROBLEM5#
-
 # Marginal effects (ME) calculation in probit model
 phi<-dnorm(X %*% mlebeta)
 meprobit<-matrix(0,nrow = 10000,ncol = 4)
