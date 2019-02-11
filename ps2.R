@@ -45,34 +45,29 @@ std<- diag(sqrt(solve(t(X)%*% X)*VARe))
 #do the bootstrap with replication 49 and 499 respectively#
 #take 49 samples with replacement from sample x of size 10000
 
-std.boot<-matrix(NA, nrow=49,ncol=4)
+std.boot<-NA
 datanew<- cbind(X,Y)
 for (i  in 1:49){
-  for (j in 1:10000){ datanew[j,]<- sample(datanew,size=1,replace=TRUE)
-
-beta<- solve(t(X)%*%X)%*%t(X)%*%Y
-VARe <- as.numeric(t(Y-X%*%beta)%*%(Y-X%*%beta)/(10000-4) )}
-std.boot[i,]<- diag(sqrt(solve(t(X)%*%X)%*%t(X)%*%Y)*VARe)
- 
+  bootdata <- datanew[sample(nrow(datanew), 10000, replace = TRUE),] 
+  beta<- solve(t(datanew[,c(1:4)])%*%datanew[,c(1:4)])%*%t(datanew[,c(1:4)])%*%datanew[,5]
+  VARe <- as.numeric(t(datanew[,5]-datanew[,c(1:4)]%*%beta)%*%(datanew[,5]-datanew[,c(1:4)]%*%beta)/(10000-4) )
+  std<- diag(sqrt(solve(t(datanew[,c(1:4)])%*% datanew[,c(1:4)])*VARe))
+  std.boot<-rbind(std.boot,std)
+  
 }
 View (std.boot)
 #take 499 samples with replacement from sample x of size 10000
-std.boot<-matrix(NA, nrow=499,ncol=4)
-for (i  in 1:499){
-  bootX0<- sample(1,size=10000,replace=TRUE)
-  bootX1<- sample(X1,size=10000,replace=TRUE)
-  bootX2<- sample(X2,size=10000,replace=TRUE)
-  bootX3<- sample(X3,size=10000,replace=TRUE)
-  bootY<- sample(Y,size=10000,replace=TRUE) 
-  X<-as.matrix(cbind(bootX0,bootX1,bootX2,bootX3))
-  Y<-as.matrix(bootY)
-  beta<- solve(t(X)%*%X)%*%t(X)%*%Y
-  VARe <- as.numeric(t(Y-X%*%beta)%*%(Y-X%*%beta)/(10000-4) )
-  std.boot[i,]<- diag(sqrt(solve(t(X)%*% X)*VARe))
-  
-  
-}
+std.boot<-NA
+  for (i  in 1:499){
+    bootdata <- datanew[sample(nrow(datanew), 10000, replace = TRUE),] 
+    beta<- solve(t(datanew[,c(1:4)])%*%datanew[,c(1:4)])%*%t(datanew[,c(1:4)])%*%datanew[,5]
+    VARe <- as.numeric(t(datanew[,5]-datanew[,c(1:4)]%*%beta)%*%(datanew[,5]-datanew[,c(1:4)]%*%beta)/(10000-4) )
+    std<- diag(sqrt(solve(t(datanew[,c(1:4)])%*% datanew[,c(1:4)])*VARe))
+    std.boot<-rbind(std.boot,std)
+    
+  }
 View (std.boot)
+
 
 #PROBLEM3#
 #write a function that returns the liklelihood of the probit#
@@ -133,7 +128,7 @@ while (diff> 0.01){
   
 }
 View (newbeta)
-
+glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))$coefficients
 #PROBLEM4#
 ####################################probit#####################################
 #write the optimization of the probit model#
@@ -175,3 +170,11 @@ parameter<-rbind(probitparameter,logitparameter,linearparameter)
 View(parameter)
 
 #PROBLEM5#
+# logit model marginal effect#
+reglogit <- glm(y ~ X1 + X2 +X3, family=binomial(link="logit"))
+summary(reglogit)
+X <- cbind(1, X1, X2,X3)???
+Xmean<-apply(X,2,mean)
+Xmean
+coef<- summary(reglogit)$coefficient
+# Marginal effects (ME) calculation
