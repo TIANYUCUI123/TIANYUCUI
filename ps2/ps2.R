@@ -108,7 +108,8 @@ probit.gr<- function (mlebeta,X,y) {
    return(g)
 } 
 
-probit.gr  (c(0,0,0,0),X,y)
+probit.gr  (c(0,0,0,0),X,y) # check the validity of the function#
+
 # set up an intial value of the mlebeta
 mlebeta<-lm(Y~X1+X2+X3)$coefficient
 #define the old beta#
@@ -116,7 +117,7 @@ beta<-mlebeta
 #define alpha #
 alpha<-0.00000003
 #define the new beta#
-newbeta<-beta-alpha*probit.gr(beta,X,y)
+newbeta<-beta-alpha*probit.gr(beta,X,y) # using the gradient logic#
 l1<-probit.nll(beta,X,y)
 l2<-probit.nll(newbeta,X,y)
 diff<-abs(l2-l1)
@@ -130,7 +131,7 @@ while (diff> 0.01){
   
 }
 View (newbeta)
-glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))$coefficients#check with beta coefficient of the function with glm#
+glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))$coefficients #check with beta coefficient of the function with glm,and I figured out that the result is in consistent with r-package results#
 #PROBLEM4#
 ####################################probit#####################################
 #write the optimization of the probit model#
@@ -152,7 +153,7 @@ y<-as.numeric(Y>mean(Y))
 logit.loglk <- function(mlebeta, X, y){
   loglk <- sum(y * plogis(X%*%mlebeta, log.p=TRUE) + (1-y) * plogis(-(X%*%mlebeta), log.p=TRUE))
    return(-loglk)
-}
+} # the function of loglikelihood is from lecture note#
 #optimization problem#
 mlebeta <-c(-0.1, -0.3, 0.001, 0.01) # arbitrary starting parameters
 optimLogit = optim(mlebeta, logit.loglk,X = X, y = y, method = 'BFGS', hessian=TRUE)
@@ -160,7 +161,8 @@ logitparameter<-optimLogit$par
 View(logitparameter)
 optimLogit$par
 # checking with R's built-in function
-glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit"))$coefficients
+glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit"))$coefficients 
+#the results of optimization is consistent with the results in R-built-in function#
 #############################linear probability model###########################
 X<-as.matrix(cbind(1,X1,X2,X3))
 Y<-as.matrix(Y)
