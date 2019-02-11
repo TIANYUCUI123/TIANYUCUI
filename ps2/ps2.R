@@ -50,7 +50,7 @@ std.boot<-NA
 datanew<- cbind(X,Y)
 for (i  in 1:49){
   bootdata <- datanew[sample(nrow(datanew), 10000, replace = TRUE),] 
-  beta<- solve(t(datanew[,c(1:4)])%*%datanew[,c(1:4)])%*%t(datanew[,c(1:4)])%*%datanew[,5]
+  beta<- solve(t(datanew[,c(1:4)])%*%datanew[,c(1:4)])%*%t(datanew[,c(1:4)])%*%datanew[,5] 
   VARe <- as.numeric(t(datanew[,5]-datanew[,c(1:4)]%*%beta)%*%(datanew[,5]-datanew[,c(1:4)]%*%beta)/(10000-4) )
   std<- diag(sqrt(solve(t(datanew[,c(1:4)])%*% datanew[,c(1:4)])*VARe))
   std.boot<-rbind(std.boot,std)
@@ -247,4 +247,3 @@ abootlogit<-abootlogit[-1,]
 View (abootlogit)
 stdabootmelogis<-c(sd(abootlogit[,1]),sd(abootlogit[,2]),sd(abootlogit[,3]),sd(abootlogit[,4]))
 View (stdabootmelogis)
-
