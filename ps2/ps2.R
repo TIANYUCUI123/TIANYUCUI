@@ -141,7 +141,7 @@ y<-as.numeric(Y>mean(Y))
 # initial values
 inits <-  lm(Y ~ X1 + X2 + X3 )$coef
 # MLE estimation of probit model#
-probit <- optim(inits, probit.nll,probit.gr, method = "BFGS", hessian = TRUE)
+probit <- optim(inits, probit.nll,X=X,y=y, method = "BFGS", hessian = TRUE)
 probitparameter<-probit$par
 # checking with R's built-in function
 glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))$coefficients
