@@ -186,19 +186,39 @@ for (i in 1:4) {
 philogis<-dlogis(X %*% mlebeta)
 melogis<-matrix(0,nrow = 10000,ncol = 4)
 mlebeta<-as.matrix(mlebeta)
-
 for (i in 1:4) {
   melogis[,i] <-phi %*% mlebeta[i,]
-  
 }
 View(melogis)
 
-#compute the standard deviation using the delta method#
-maginX<-function(mlebeta,X){
-  phi<-dnorm(X %*% mlebeta)%*% mlebeta
-  }
-
-
+#compute the standard deviation of probit model using the delta method#
+install.packages("numDeriv")
+library(numDeriv)
+Xmean<-apply(X,2,mean)
+View(Xmean)
+View(mlebeta)
+maginX<-function(mlebeta,X = Xmean){
+  phi<-dnorm(X %*% t(mlebeta))%*% mlebeta
+}
+jac<-jacobian(maginX,mlebeta)
+glmprobit<-glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))
+variance<-vcov(glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit")))
+jvariance<-jac%*%variance%*%t(jac)
+std<-diag(sqrt(jvariance))
+View(std)
+#compute the standard deviation of logit model using the delta method#
+Xmean<-apply(X,2,mean)
+View(Xmean)
+View(mlebeta)
+maginX<-function(mlebeta,X = Xmean){
+  phi<-dlogis(X %*% t(mlebeta))%*% mlebeta
+}
+jac<-jacobian(maginX,mlebeta)
+glmprobit<-glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit"))
+variance<-vcov(glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit")))
+jvariance<-jac%*%variance%*%t(jac)
+std<-diag(sqrt(jvariance))
+View(std)
 #compute the standard deviation using the bootstrap of probit model #
 abootprobit<-NA
 data<-meprobit
@@ -208,10 +228,12 @@ for (i  in 1:499){
   abootprobit<-rbind(abootprobit,averagex)
   
 }
+
 abootprobit<-abootprobit[-1,]
 View (abootprobit)
 stdabootprobit<-c(sd(abootprobit[,1]),sd(abootprobit[,2]),sd(abootprobit[,3]),sd(abootprobit[,4]))
 View (stdabootprobit)
+
 #compute the standard deviation using the bootstrap of logit model#
 abootlogit<-NA
 data<-melogis
