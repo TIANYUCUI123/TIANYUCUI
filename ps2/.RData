@@ -1,0 +1,94 @@
+---
+title: "ps2"
+author: "TIANYUCUI"
+date: "February 11, 2019"
+output: html_document
+---
+
+```{r}
+set.seed(123)
+X1<-runif(10000, min=1, max=3) 
+View(X1)
+#generate a gamma distribution with shape 3 and scale2#
+X2<-rgamma(10000, 3, rate = 0.5)
+View(X2)
+#generate a binomial distribution with prob=0.3#
+X3<-rbinom(10000,1, prob=0.3)
+View (X3)
+#generate a normal distribution with mean 2 and sd1#
+eps<-rnorm(10000, mean = 2, sd = 1)
+#Create Y which is the linear combination of X#
+Y=0.5+1.2*X1-0.9*X2+0.1*X3+eps
+View(Y)
+#Create ydummy variable#
+y<-as.numeric(Y>mean(Y))
+```
+
+```{r}
+cor<-cor(Y,X1)
+DISTANCE=cor - 1.2
+#run the regression of Y and X variables
+reg1<-lm(formula = Y ~ X1+X2+X3 )
+summary(reg1)
+#calculate the coefficient of Y on X1, X2, X3#
+coefficients(reg1) 
+#do the OLS calculation to compare with R#
+#Step 1: generate the matrix of X,Y#
+X<-as.matrix(cbind(1,X1,X2,X3))
+Y<-as.matrix(Y)
+#Step 2: do the calculation (X'X)^-1 X'Y#
+beta<- solve(t(X)%*%X)%*%t(X)%*%Y
+#calculate the standard errors using the standard formulas of OLS#
+#Step1: calculate the residuals variance#
+VARe <- as.numeric(t(Y-X%*%beta)%*%(Y-X%*%beta)/(10000-4) )
+#Step2 : calculate the standard error of the beta coefficient#
+std<- diag(sqrt(solve(t(X)%*% X)*VARe))
+
+
+#do the bootstrap with replication 49 and 499 respectively#
+#take 49 samples with replacement from sample x of size 10000
+
+std.boot<-NA
+datanew<- cbind(X,Y)
+for (i  in 1:49){
+  bootdata <- datanew[sample(nrow(datanew), 10000, replace = TRUE),] 
+  beta<- solve(t(datanew[,c(1:4)])%*%datanew[,c(1:4)])%*%t(datanew[,c(1:4)])%*%datanew[,5]
+  VARe <- as.numeric(t(datanew[,5]-datanew[,c(1:4)]%*%beta)%*%(datanew[,5]-datanew[,c(1:4)]%*%beta)/(10000-4) )
+  std<- diag(sqrt(solve(t(datanew[,c(1:4)])%*% datanew[,c(1:4)])*VARe))
+  std.boot<-rbind(std.boot,std)
+  
+}
+std.boot<-std.boot[-1,]
+View (std.boot)
+#take 499 samples with replacement from sample x of size 10000
+std.boot<-NA
+  for (i  in 1:499){
+    bootdata <- datanew[sample(nrow(datanew), 10000, replace = TRUE),] 
+    beta<- solve(t(datanew[,c(1:4)])%*%datanew[,c(1:4)])%*%t(datanew[,c(1:4)])%*%datanew[,5]
+    VARe <- as.numeric(t(datanew[,5]-datanew[,c(1:4)]%*%beta)%*%(datanew[,5]-datanew[,c(1:4)]%*%beta)/(10000-4) )
+    std<- diag(sqrt(solve(t(datanew[,c(1:4)])%*% datanew[,c(1:4)])*VARe))
+    std.boot<-rbind(std.boot,std)
+    
+  }
+std.boot<-std.boot[-1,]
+View (std.boot)
+```
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

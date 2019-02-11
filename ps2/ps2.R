@@ -3,6 +3,7 @@
 #clear up everything#
 rm(list=ls())
 #generate a uniform distribution with range 1:3#
+set.seed(123)
 X1<-runif(10000, min=1, max=3) 
 View(X1)
 #generate a gamma distribution with shape 3 and scale2#
@@ -85,12 +86,12 @@ View(X)
 
 #write a likelihood function#
 probit.nll <- function (mlebeta,X,y) {
-# linear predictor
-eta <- X %*% mlebeta
-# probability
-p <- pnorm(eta)
- # negative log-likelihood(we can get the maximize likelihood function thereby)
-loglk <-(-sum((1 - y) * log(1 - p) + y * log(p)))
+  # linear predictor
+  eta <- X %*% mlebeta
+  # probability
+  p <- pnorm(eta)
+  # negative log-likelihood(we can get the maximize likelihood function thereby)
+  loglk <-(-sum((1 - y) * log(1 - p) + y * log(p)))
 }
 probit<-probit.nll (c(0,0,0,0),X,y)
 print(probit)
@@ -180,11 +181,7 @@ for (i in 1:4) {
   meprobit[,i] <-phi %*% mlebeta[i,]
   
 }
-###########check with R-package probit model######################
-library(margins)
-x <- glm(y ~ X1 + X2 +X3, family=binomial(link="probit"))
-m <- margins(x)
-m
+
 #Marginal effect (ME) calculation in logit model
 philogis<-dlogis(X %*% mlebeta)
 melogis<-matrix(0,nrow = 10000,ncol = 4)
@@ -196,12 +193,11 @@ for (i in 1:4) {
 }
 View(melogis)
 
-###########check with R-package probit model######################
-library(margins)
-x <- glm(y ~ X1 + X2 +X3, family=binomial(link="logit"))
-m <- margins(x)
-m
 #compute the standard deviation using the delta method#
+maginX<-function(mlebeta,X){
+  phi<-dnorm(X %*% mlebeta)%*% mlebeta
+  }
+
 
 #compute the standard deviation using the bootstrap of probit model #
 abootprobit<-NA
@@ -229,3 +225,4 @@ abootlogit<-abootlogit[-1,]
 View (abootlogit)
 stdabootmelogis<-c(sd(abootlogit[,1]),sd(abootlogit[,2]),sd(abootlogit[,3]),sd(abootlogit[,4]))
 View (stdabootmelogis)
+
