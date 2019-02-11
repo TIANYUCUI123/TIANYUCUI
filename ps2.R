@@ -195,9 +195,12 @@ for (i in 1:4) {
   
 }
 View(melogis)
+
 ###########check with R-package probit model######################
 library(margins)
 x <- glm(y ~ X1 + X2 +X3, family=binomial(link="logit"))
 m <- margins(x)
 m
 #compute the standard deviation using the delta method#
+
+#compute the standard deviation using the bootstrap 
