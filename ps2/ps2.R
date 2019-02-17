@@ -37,7 +37,8 @@ X<-as.matrix(cbind(1,X1,X2,X3))
 Y<-as.matrix(Y)
 #Step 2: do the calculation (X'X)^-1 X'Y#
 beta<- solve(t(X)%*%X)%*%t(X)%*%Y
-beta
+resultcompare<-rbind(t(beta),coefficients(reg1)) ###the results illustrate that two c
+
 #calculate the standard errors using the standard formulas of OLS#
 #Step1: calculate the residuals variance#
 VARe <- as.numeric(t(Y-X%*%beta)%*%(Y-X%*%beta)/(10000-4) )
@@ -46,28 +47,21 @@ std<- diag(sqrt(solve(t(X)%*% X)*VARe))
 std
 
 #do the bootstrap with replication 49 and 499 respectively#
-#take 49 samples with replacement from sample x of size 10000
-std<-matrix(0,nrow=49,ncol=4)
-datanew<- cbind(X,Y)
-for (i  in 1:49){
-  bootdata <- datanew[sample(nrow(datanew), 10000, replace = TRUE),] #sample each row with replacement, and repeat for 49 times#
-  beta<- solve(t(bootdata[,c(1:4)])%*%bootdata[,c(1:4)])%*%t(bootdata[,c(1:4)])%*%bootdata[,5] 
-  VARe <- as.numeric(t(bootdata[,5]-bootdata[,c(1:4)]%*%beta)%*%(bootdata[,5]-bootdata[,c(1:4)]%*%beta)/(10000-4) )
-  std[i,]<- t(diag(sqrt(solve(t(bootdata[,c(1:4)])%*% bootdata[,c(1:4)])*VARe)))
-  
-}
-View(std)
-#take 499 samples with replacement from sample x of size 10000
-std<-matrix(0,nrow=499,ncol=4)
-datanew<- cbind(X,Y)
-for (i  in 1:499){
-  bootdata <- datanew[sample(nrow(datanew), 10000, replace = TRUE),] #sample each row with replacement, and repeat for 49 times#
-  beta<- solve(t(bootdata[,c(1:4)])%*%bootdata[,c(1:4)])%*%t(bootdata[,c(1:4)])%*%bootdata[,5] 
-  VARe <- as.numeric(t(bootdata[,5]-bootdata[,c(1:4)]%*%beta)%*%(bootdata[,5]-bootdata[,c(1:4)]%*%beta)/(10000-4) )
-  std[i,]<- t(diag(sqrt(solve(t(bootdata[,c(1:4)])%*% bootdata[,c(1:4)])*VARe)))
-  
-}
-View(std)
+stdboot<-function(X,Y,k,n){
+    std<-matrix(0,nrow=k,ncol=4) 
+    for (k in 1: k) {   
+      datanew<- as.matrix(cbind(X,Y))
+      boot <- datanew[sample(nrow(datanew), n, replace = TRUE),] #sample each row with replacement, and repeat for 49 times#}
+      beta<- solve(t(boot[,c(1:4)])%*%boot[,c(1:4)])%*%t(boot[,c(1:4)])%*%boot[,5] 
+      VARe <- as.numeric(t(boot[,5]-boot[,c(1:4)]%*%beta)%*%(boot[,5]-boot[,c(1:4)]%*%beta)/(n-4) )
+      std[k,]<- t(diag(sqrt(solve(t(boot[,c(1:4)])%*% boot[,c(1:4)])*VARe))) 
+    }
+    return(std)
+  }
+X<-as.matrix(cbind(1,X1,X2,X3))
+Y<-as.matrix(Y)
+View(stdboot(X,Y,49,10000))
+View(stdboot(X,Y,499,10000))
 
 #PROBLEM3#
 #write a function that returns the liklelihood of the probit#
@@ -90,6 +84,7 @@ probit.nll <- function (mlebeta,X,y) {
   p <- pnorm(eta)
   # negative log-likelihood(we can get the maximize likelihood function thereby)
   loglk <-(-sum((1 - y) * log(1 - p) + y * log(p)))
+  return(loglk)
 }
 probit<-probit.nll (c(0,0,0,0),X,y) # check the validity of the function#
 print(probit)
@@ -109,9 +104,9 @@ probit.gr<- function (mlebeta,X,y) {
 probit.gr  (c(0,0,0,0),X,y) # check the validity of the function#
 
 # set up an intial value of the mlebeta
-mlebeta<-lm(Y~X1+X2+X3)$coefficient
+initialbeta<-lm(Y~X1+X2+X3)$coefficient
 #define the old beta#
-beta<-mlebeta
+beta<-initialbeta
 #define alpha #
 alpha<-0.00000003
 #define the new beta#
@@ -119,7 +114,7 @@ newbeta<-beta-alpha*probit.gr(beta,X,y) # using the gradient logic#
 l1<-probit.nll(beta,X,y)
 l2<-probit.nll(newbeta,X,y)
 diff<-abs(l2-l1)
-while (diff> 0.01){
+while (diff> 0.000001){
   l1<-probit.nll(beta,X,y)
   probit.gr<- function (beta,X,y) 
   newbeta<-beta-alpha*probit.gr
@@ -128,8 +123,9 @@ while (diff> 0.01){
   beta<-newbeta
   
 }
-View (newbeta)
-glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))$coefficients #check with beta coefficient of the function with glm,and I figured out that the result is in consistent with r-package results#
+newbeta
+mlebeta<-glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))$coefficients#check with beta coefficient of the function with glm,and I figured out that the result is in consistent with r-package results#
+mlebeta
 #PROBLEM4#
 ####################################probit#####################################
 #write the optimization of the probit model#
@@ -142,7 +138,9 @@ inits <-  lm(Y ~ X1 + X2 + X3 )$coef
 probit <- optim(inits, probit.nll,X=X,y=y, method = "BFGS", hessian = TRUE)
 probitparameter<-probit$par
 # checking with R's built-in function
-glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))$coefficients
+glmcoefficient<- glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))$coefficients
+resultcompare1<-rbind(probitparameter,glmcoefficient)
+resultcompare1
 #####################################logit#####################################
 # in the case that X data will be manipulated from previous action, I will update data to original one#
 X<-as.matrix(cbind(1,X1,X2,X3))
@@ -159,10 +157,11 @@ logit.loglk <- function(mlebeta, X, y){
 mlebeta <-c(-0.1, -0.3, 0.001, 0.01) # arbitrary starting parameters
 optimLogit = optim(mlebeta, logit.loglk,X = X, y = y, method = 'BFGS', hessian=TRUE)
 logitparameter<-optimLogit$par
-View(logitparameter)
-optimLogit$par
+logitparameter
 # checking with R's built-in function
-glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit"))$coefficients 
+glmcoefficient<- glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit"))$coefficients
+resultcompare2<-rbind(logitparameter,glmcoefficient)
+resultcompare2
 #the results of optimization is consistent with the results in R-built-in function#
 #############################linear probability model###########################
 X<-as.matrix(cbind(1,X1,X2,X3))
@@ -170,7 +169,7 @@ Y<-as.matrix(Y)
 y<-as.numeric(Y>mean(Y))
 meansquare <- function(olsbeta, X, y){
   min <- t(y-X%*%olsbeta)%*%(y-X%*%olsbeta)
-
+  return(min)
 }
 olsbeta <-c(-0.1, -0.3, 0.001, 0.01) # arbitrary starting parameters
 optimols <- optim(olsbeta, meansquare ,X = X, y = y, method = 'BFGS', hessian=TRUE)
@@ -178,7 +177,8 @@ olsparameter<-optimols$par
 olsparameter
 #check with R's built-in function
 linearparameter<- lm(y ~ X1 + X2 + X3 )$coefficient
-linearparameter
+resultcompare3 <-rbind(olsparameter,linearparameter)
+resultcompare3
 ############################Combine the results together########################
 parameter<-rbind(probitparameter,logitparameter,olsparameter)
 View(parameter)
@@ -196,16 +196,17 @@ View(pvalue)
 
 #PROBLEM5#
 # Marginal effects (ME) calculation in probit model
+mlebeta<- glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))$coefficients
 phi<-dnorm(X %*% mlebeta)
 meprobit<-matrix(0,nrow = 10000,ncol = 4)
 mlebeta<-as.matrix(mlebeta)
-View(mlebeta)
 for (i in 1:4) {
   meprobit[,i] <-phi %*% mlebeta[i,]
   
 }
-
+View(meprobit)
 #Marginal effect (ME) calculation in logit model
+mlebeta<- glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit"))$coefficients
 philogis<-dlogis(X %*% mlebeta)
 melogis<-matrix(0,nrow = 10000,ncol = 4)
 mlebeta<-as.matrix(mlebeta)
@@ -245,29 +246,27 @@ std<-diag(sqrt(jvariance))
 View(std)
 
 #compute the standard deviation using the bootstrap of probit model #
-abootprobit<-NA
+abootprobit<-matrix(0,nrow=499,ncol=4) 
 data<-meprobit
 for (i  in 1:499){
   bootdata <- meprobit[sample(nrow(meprobit), 10000, replace = TRUE),] 
-  averagex<- c(mean(bootdata[,1]),mean(bootdata[,2]),mean(bootdata[,3]),mean(bootdata[,4]))
-  abootprobit<-rbind(abootprobit,averagex)
+  averagex<- apply(bootdata, 2, mean)
+  abootprobit[i,]<- averagex
   
 }
-abootprobit<-abootprobit[-1,]
 View (abootprobit)
-stdabootprobit<-c(sd(abootprobit[,1]),sd(abootprobit[,2]),sd(abootprobit[,3]),sd(abootprobit[,4]))
+stdabootprobit<- apply(abootprobit,2,sd)
 View (stdabootprobit)
 
 #compute the standard deviation using the bootstrap of logit model#
-abootlogit<-NA
+abootlogit<-matrix(0,nrow=499,ncol=4) 
 data<-melogis
 for (i  in 1:499){
   bootdata <- melogis[sample(nrow(melogis), 10000, replace = TRUE),] 
-  averagex<- c(mean(bootdata[,1]),mean(bootdata[,2]),mean(bootdata[,3]),mean(bootdata[,4]))
-  abootlogit<-rbind(abootlogit,averagex)
+  averagex<- apply(bootdata, 2, mean)
+  abootlogit[i,]<- averagex
   
 }
-abootlogit<-abootlogit[-1,]
 View (abootlogit)
-stdabootmelogis<-c(sd(abootlogit[,1]),sd(abootlogit[,2]),sd(abootlogit[,3]),sd(abootlogit[,4]))
-View (stdabootmelogis)
+stdabootlogit<- apply(abootlogit,2,sd)
+View (stdabootlogit)
