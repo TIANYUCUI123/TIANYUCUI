@@ -209,7 +209,7 @@ quality_std_choice1<-sd(rchoice1$quality)
 
 d2<-c("schoolcode2","choicepgm2")
 rchoice2<-datstu[d2]
-rchoice2$schoolcode2<- with(r1, paste0(schoolcode2,sep=",", choicepgm2))
+rchoice2$schoolcode2<- with(rchoice1, paste0(schoolcode2,sep=",", choicepgm2))
 rchoice2$choicepgm2<-NULL
 colnames(rchoice2)[colnames(rchoice2)=="schoolcode2"]<-"schoolprogram"
 rchoice1<-merge(rchoice2,data2,by ="schoolprogram")

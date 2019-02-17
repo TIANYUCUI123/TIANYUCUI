@@ -245,28 +245,19 @@ jvariance<-jac%*%variance%*%t(jac)
 std<-diag(sqrt(jvariance))
 View(std)
 
-#compute the standard deviation using the bootstrap of probit model #
-abootprobit<-matrix(0,nrow=499,ncol=4) 
-data<-meprobit
-for (i  in 1:499){
-  bootdata <- meprobit[sample(nrow(meprobit), 10000, replace = TRUE),] 
-  averagex<- apply(bootdata, 2, mean)
-  abootprobit[i,]<- averagex
-  
+#compute the standard deviation using the bootstrap  #
+boot<-function(data,k,n){
+  aboot<-matrix(0,nrow=k,ncol=4) 
+  for (k  in 1:k){
+    bootdata <- data[sample(nrow(data), 10000, replace = TRUE),] 
+    averagex<- apply(bootdata, 2, mean)
+    aboot[k,]<- averagex
+    
+  }
+  return(aboot)
 }
-View (abootprobit)
-stdabootprobit<- apply(abootprobit,2,sd)
-View (stdabootprobit)
 
-#compute the standard deviation using the bootstrap of logit model#
-abootlogit<-matrix(0,nrow=499,ncol=4) 
-data<-melogis
-for (i  in 1:499){
-  bootdata <- melogis[sample(nrow(melogis), 10000, replace = TRUE),] 
-  averagex<- apply(bootdata, 2, mean)
-  abootlogit[i,]<- averagex
-  
-}
-View (abootlogit)
-stdabootlogit<- apply(abootlogit,2,sd)
-View (stdabootlogit)
+stdprobit<-apply(boot(meprobit,499,10000),2, sd)
+View(stdprobit)
+std<-apply(boot(melogis,499,10000),2,sd)
+View(stdlogis)
