@@ -2,8 +2,9 @@
 
 #clear up everything#
 rm(list=ls())
-#generate a uniform distribution with range 1:3#
+#set the seed#
 set.seed(123)
+#generate a uniform distribution with range 1:3#
 X1<-runif(10000, min=1, max=3) 
 View(X1)
 #generate a gamma distribution with shape 3 and scale2#
@@ -36,40 +37,37 @@ X<-as.matrix(cbind(1,X1,X2,X3))
 Y<-as.matrix(Y)
 #Step 2: do the calculation (X'X)^-1 X'Y#
 beta<- solve(t(X)%*%X)%*%t(X)%*%Y
+beta
 #calculate the standard errors using the standard formulas of OLS#
 #Step1: calculate the residuals variance#
 VARe <- as.numeric(t(Y-X%*%beta)%*%(Y-X%*%beta)/(10000-4) )
 #Step2 : calculate the standard error of the beta coefficient#
 std<- diag(sqrt(solve(t(X)%*% X)*VARe))
-
+std
 
 #do the bootstrap with replication 49 and 499 respectively#
 #take 49 samples with replacement from sample x of size 10000
-
-std.boot<-NA
+std<-matrix(0,nrow=49,ncol=4)
 datanew<- cbind(X,Y)
 for (i  in 1:49){
   bootdata <- datanew[sample(nrow(datanew), 10000, replace = TRUE),] #sample each row with replacement, and repeat for 49 times#
-  beta<- solve(t(datanew[,c(1:4)])%*%datanew[,c(1:4)])%*%t(datanew[,c(1:4)])%*%datanew[,5] 
-  VARe <- as.numeric(t(datanew[,5]-datanew[,c(1:4)]%*%beta)%*%(datanew[,5]-datanew[,c(1:4)]%*%beta)/(10000-4) )
-  std<- diag(sqrt(solve(t(datanew[,c(1:4)])%*% datanew[,c(1:4)])*VARe))
-  std.boot<-rbind(std.boot,std)
+  beta<- solve(t(bootdata[,c(1:4)])%*%bootdata[,c(1:4)])%*%t(bootdata[,c(1:4)])%*%bootdata[,5] 
+  VARe <- as.numeric(t(bootdata[,5]-bootdata[,c(1:4)]%*%beta)%*%(bootdata[,5]-bootdata[,c(1:4)]%*%beta)/(10000-4) )
+  std[i,]<- t(diag(sqrt(solve(t(bootdata[,c(1:4)])%*% bootdata[,c(1:4)])*VARe)))
   
 }
-std.boot<-std.boot[-1,]
-View (std.boot)
+View(std)
 #take 499 samples with replacement from sample x of size 10000
-std.boot<-NA
-  for (i  in 1:499){
-    bootdata <- datanew[sample(nrow(datanew), 10000, replace = TRUE),] 
-    beta<- solve(t(datanew[,c(1:4)])%*%datanew[,c(1:4)])%*%t(datanew[,c(1:4)])%*%datanew[,5]
-    VARe <- as.numeric(t(datanew[,5]-datanew[,c(1:4)]%*%beta)%*%(datanew[,5]-datanew[,c(1:4)]%*%beta)/(10000-4) )
-    std<- diag(sqrt(solve(t(datanew[,c(1:4)])%*% datanew[,c(1:4)])*VARe))
-    std.boot<-rbind(std.boot,std)
-    
-  }
-std.boot<-std.boot[-1,]
-View (std.boot)
+std<-matrix(0,nrow=499,ncol=4)
+datanew<- cbind(X,Y)
+for (i  in 1:499){
+  bootdata <- datanew[sample(nrow(datanew), 10000, replace = TRUE),] #sample each row with replacement, and repeat for 49 times#
+  beta<- solve(t(bootdata[,c(1:4)])%*%bootdata[,c(1:4)])%*%t(bootdata[,c(1:4)])%*%bootdata[,5] 
+  VARe <- as.numeric(t(bootdata[,5]-bootdata[,c(1:4)]%*%beta)%*%(bootdata[,5]-bootdata[,c(1:4)]%*%beta)/(10000-4) )
+  std[i,]<- t(diag(sqrt(solve(t(bootdata[,c(1:4)])%*% bootdata[,c(1:4)])*VARe)))
+  
+}
+View(std)
 
 #PROBLEM3#
 #write a function that returns the liklelihood of the probit#
