@@ -196,22 +196,22 @@ View(pvalue)
 
 #PROBLEM5#
 # Marginal effects (ME) calculation in probit model
-mlebeta<- glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))$coefficients
-phi<-dnorm(X %*% mlebeta)
+mlebeta1<- glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))$coefficients
+phi<-dnorm(X %*% mlebeta1)
 meprobit<-matrix(0,nrow = 10000,ncol = 4)
-mlebeta<-as.matrix(mlebeta)
+mlebeta1<-as.matrix(mlebeta1)
 for (i in 1:4) {
-  meprobit[,i] <-phi %*% mlebeta[i,]
+  meprobit[,i] <-phi %*% mlebeta1[i,]
   
 }
 View(meprobit)
 #Marginal effect (ME) calculation in logit model
-mlebeta<- glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit"))$coefficients
-philogis<-dlogis(X %*% mlebeta)
+mlebeta2<- glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit"))$coefficients
+philogis<-dlogis(X %*% mlebeta2)
 melogis<-matrix(0,nrow = 10000,ncol = 4)
-mlebeta<-as.matrix(mlebeta)
+mlebeta2<-as.matrix(mlebeta2)
 for (i in 1:4) {
-  melogis[,i] <-phi %*% mlebeta[i,]
+  melogis[,i] <-phi %*% mlebeta2[i,]
 }
 View(melogis)
 
@@ -220,10 +220,10 @@ library(numDeriv)# I use the package called numDeriv since the package will help
 Xmean<-apply(X,2,mean)
 View(Xmean)
 View(mlebeta)
-maginX<-function(mlebeta,X = Xmean){
-  phi<-dnorm(X %*% t(mlebeta))%*% mlebeta
+maginX<-function(mlebeta1,X = Xmean){
+  phi<-dnorm(X %*% t(mlebeta1))%*% mlebeta1
 }  # I first generate a function that represent the marginal effect of X
-
+maginX
 jac<-jacobian(maginX,mlebeta)# using the jacobian function which can give me 4*4 matrix of partial derivative of marginal effect of beta#
 glmprobit<-glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))
 variance<-vcov(glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit")))
@@ -235,10 +235,10 @@ View(std)
 Xmean<-apply(X,2,mean)
 View(Xmean)
 View(mlebeta)
-maginX<-function(mlebeta,X = Xmean){
-  phi<-dlogis(X %*% t(mlebeta))%*% mlebeta
+maginX<-function(mlebeta2,X = Xmean){
+  phi<-dlogis(X %*% t(mlebeta2))%*% mlebeta2
 }
-jac<-jacobian(maginX,mlebeta)
+jac<-jacobian(maginX,mlebeta2)
 glmprobit<-glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit"))
 variance<-vcov(glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit")))
 jvariance<-jac%*%variance%*%t(jac)
@@ -259,5 +259,5 @@ boot<-function(data,k,n){
 
 stdprobit<-apply(boot(meprobit,499,10000),2, sd)
 View(stdprobit)
-std<-apply(boot(melogis,499,10000),2,sd)
+stdlogis<-apply(boot(melogis,499,10000),2,sd)
 View(stdlogis)
