@@ -17,11 +17,30 @@ X<-as.matrix(cbind(1,X1,X2,X3))
 Y<-as.matrix(Y)
 stdboot(X,Y,49,10000)
 View(stdboot(X,Y,49,10000))
-boot<-# check the validity of the function#
-  
+
+
 std<-function(boot,k,n){
     for (k in 1:k)
       beta<- solve(t(boot[,c(1:4)])%*%boot[,c(1:4)])%*%t(boot[,c(1:4)])%*%boot[,5] 
     VARe <- as.numeric(t(boot[,5]-boot[,c(1:4)]%*%beta)%*%(boot[,5]-boot[,c(1:4)]%*%beta)/(n-4) )
     std[k,]<- t(diag(sqrt(solve(t(boot[,c(1:4)])%*% boot[,c(1:4)])*VARe)))
+}
+
+
+#############bootstrap function for question5#################################
+boot<-function(data,k,n){
+ aboot<-matrix(0,nrow=k,ncol=4) 
+  for (k  in 1:k){
+  bootdata <- data[sample(nrow(data), 10000, replace = TRUE),] 
+  averagex<- apply(bootdata, 2, mean)
+  aboot[k,]<- averagex
+
   }
+  return(aboot)
+}
+
+stdprobit<-apply(boot(meprobit,499,10000),2, sd)
+View(stdprobit)
+std<-apply(boot(melogis,499,10000),2,sd)
+View(stdlogis)
+

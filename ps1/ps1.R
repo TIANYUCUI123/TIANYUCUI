@@ -3,9 +3,11 @@ cat("\014")
 # clear workspace#
 rm(list=ls())
 # set working directory #
+
 setwd("C:/Users/cuiti/Master Study/Second Semester/econometrics/TIANYUCUI")
 # import the database for question 1#
 library(readr)
+datstu <- read.csv("C:/Users/cuiti/Master Study/Second Semester/econometrics/dat/datstu.csv")
 datstu <- read.csv("C:/Users/cuiti/Master Study/Second Semester/econometrics/dat/datstu.csv",na.string=c("","NA"))
 # question1.1:observation of student#
 nrow(datstu)
@@ -16,9 +18,12 @@ nrow(datstu)
 Nschool<-c("schoolcode1","schoolcode2","schoolcode3","schoolcode4","schoolcode5","schoolcode6")
 School <- datstu[,5:10]
 vec1 <- c(as.matrix(School))
+table(vec1)
 Nschool<-unique(vec1)
+View(Nschool)
 #replace Nschool by dropping NA in the data set#
 Nschool <- Nschool[ !is.na(Nschool ) ]
+View(Nschool)
 length(Nschool)
 
 # question1.3:number of programs#
@@ -131,8 +136,9 @@ size <- data.frame(schoolcode=rep(row.names(size),ncol(size)),
 ss2<-cbind(cutoff,quality,size)
 ss2 <- ss2[, !duplicated(colnames(ss2))]
 #merge the ss2 and  sss#
-sss$vec1<- with(sss, paste0(vec1, sep=",",vec2))
-ss2$schoolcode<- with(ss2, paste0(schoolcode,sep=",", j))
+
+sss$vec1<- with(sss, paste0(vec1, sep=",",vec2))#covert two columns into one column#
+ss2$schoolcode<- with(ss2, paste0(schoolcode,sep=",", j))#covert two columns into one column#
 sss<-as.data.frame(sss)
 ss3<-as.data.frame(ss2)
 data2<- merge(ss2, sss, by.x = "schoolcode", by.y = "vec1",all=TRUE)
@@ -140,6 +146,7 @@ data2 <- data2[ -c(2,6) ]
 colnames(data2)[colnames(data2)=="schoolcode"] <- "schoolprogram"
 data2 <- na.omit(data2)
 write.csv(data2,"question2table.csv")
+
 #question3#
 # In this question, I treat the distance as the length between high school that students are admitted and junior high school#
 data3<-merge(datstu,datjss,by="jssdistrict")
@@ -196,12 +203,13 @@ rownames(data4) <- c("average","std")
 write.csv(data4,"question4table.csv")
 
 #question4-meaning2#
+View(data2)
 c2<-c("schoolcode1","choicepgm1")
 rchoice1<-datstu[c2]
 rchoice1$schoolcode1<- with(rchoice1, paste0(schoolcode1,sep=",", choicepgm1))
 rchoice1$choicepgm1<-NULL
-colnames(rchoice1)[colnames(rchoice1)=="schoolcode1"]<-"schoolprogram"
-rchoice1<-merge(rchoice1,data2,by ="schoolprogram")
+colnames(rchoice1)[colnames(rchoice1)=="schoolcode1"]<-"schoolprogram"#combine the schoolcode and school program#
+rchoice1<-merge(rchoice1,data2,by ="schoolprogram") #merge with data2, which has been well manipulated in question2#
 cutoff_mean_choice1<-mean(rchoice1$cutoff)
 cutoff_std_choice1<- sd(rchoice1$cutoff)
 quality_mean_choice1<-mean(rchoice1$quality)
@@ -209,10 +217,10 @@ quality_std_choice1<-sd(rchoice1$quality)
 
 d2<-c("schoolcode2","choicepgm2")
 rchoice2<-datstu[d2]
-rchoice2$schoolcode2<- with(rchoice1, paste0(schoolcode2,sep=",", choicepgm2))
+rchoice2$schoolcode2<- with(rchoice2, paste0(schoolcode2,sep=",", choicepgm2))
 rchoice2$choicepgm2<-NULL
 colnames(rchoice2)[colnames(rchoice2)=="schoolcode2"]<-"schoolprogram"
-rchoice1<-merge(rchoice2,data2,by ="schoolprogram")
+rchoice2<-merge(rchoice2,data2,by ="schoolprogram")
 cutoff_mean_choice2<-mean(rchoice2$cutoff)
 cutoff_std_choice2<- sd(rchoice2$cutoff)
 quality_mean_choice2<-mean(rchoice2$quality)
@@ -223,7 +231,7 @@ rchoice3<-datstu[f2]
 rchoice3$schoolcode3<- with(rchoice3, paste0(schoolcode3,sep=",", choicepgm3))
 rchoice3$choicepgm3<-NULL
 colnames(rchoice3)[colnames(rchoice3)=="schoolcode3"]<-"schoolprogram"
-rchoice1<-merge(rchoice3,data2,by ="schoolprogram")
+rchoice3<-merge(rchoice3,data2,by ="schoolprogram")
 cutoff_mean_choice3<-mean(rchoice3$cutoff)
 cutoff_std_choice3<- sd(rchoice3$cutoff)
 quality_mean_choice3<-mean(rchoice3$quality)
@@ -240,7 +248,7 @@ cutoff_std_choice4<- sd(rchoice4$cutoff)
 quality_mean_choice4<-mean(rchoice4$quality)
 quality_std_choice4<-sd(rchoice4$quality)
 
-h2<-c("schoolcode3","choicepgm3")
+h2<-c("schoolcode5","choicepgm5")
 rchoice5<-datstu[h2]
 rchoice5$schoolcode5<- with(rchoice5, paste0(schoolcode5,sep=",", choicepgm5))
 rchoice5$choicepgm5<-NULL
@@ -252,8 +260,7 @@ quality_mean_choice5<-mean(rchoice5$quality)
 quality_std_choice5<-sd(rchoice5$quality)
 
 j2<-c("schoolcode6","choicepgm6")
-rchoice6<-datstu[j2](rchoice6)
-rchoice6<-data.frame
+rchoice6<-datstu[j2]
 rchoice6$schoolcode6<- with(rchoice6, paste0(schoolcode6,sep=",", choicepgm6))
 rchoice6$choicepgm6<-NULL
 colnames(rchoice6)[colnames(rchoice6)=="schoolcode6"]<-"schoolprogram"
@@ -267,7 +274,7 @@ data4new<-c(cutoff_mean_choice1,cutoff_mean_choice2,cutoff_mean_choice3,cutoff_m
 data4new <- matrix(data4new, nrow = 4, ncol = 6, byrow = TRUE)
 colnames(data4new) <- c("rank1","rank2","rank3","rank4","rank5","rank6")
 rownames(data4new) <- c("averagecutoff","stdcutoff","averagequality","stdquality")
-data4new
+View(data4new)
 write.csv(data4new,"question4table.csv")
 
 #question5#
