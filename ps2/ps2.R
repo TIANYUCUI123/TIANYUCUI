@@ -205,6 +205,7 @@ for (i in 1:4) {
   
 }
 View(meprobit)
+
 #Marginal effect (ME) calculation in logit model
 mlebeta2<- glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit"))$coefficients
 philogis<-dlogis(X %*% mlebeta2)
@@ -219,22 +220,21 @@ View(melogis)
 library(numDeriv)# I use the package called numDeriv since the package will help me calculate the jacobian#
 Xmean<-apply(X,2,mean)
 View(Xmean)
-View(mlebeta)
-maginX<-function(mlebeta1,X = Xmean){
+View(mlebeta1)
+maginX1<-function(mlebeta1,X=Xmean){
   phi<-dnorm(X %*% t(mlebeta1))%*% mlebeta1
 }  # I first generate a function that represent the marginal effect of X
-maginX
-jac<-jacobian(maginX,mlebeta)# using the jacobian function which can give me 4*4 matrix of partial derivative of marginal effect of beta#
+jac<-jacobian(maginX1,mlebeta1)# using the jacobian function which can give me 4*4 matrix of partial derivative of marginal effect of beta#
 glmprobit<-glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit"))
 variance<-vcov(glm(y ~ X1 + X2 +X3 ,family=binomial(link="probit")))
 jvariance<-jac%*%variance%*%t(jac)#variance covariace matrix for the std error of X mean#
-std<-diag(sqrt(jvariance))
-View(std)
+std1<-diag(sqrt(jvariance))
+View(std1)
 
 #compute the standard deviation of logit model using the delta method#
 Xmean<-apply(X,2,mean)
 View(Xmean)
-View(mlebeta)
+View(mlebeta2)
 maginX<-function(mlebeta2,X = Xmean){
   phi<-dlogis(X %*% t(mlebeta2))%*% mlebeta2
 }
@@ -242,22 +242,41 @@ jac<-jacobian(maginX,mlebeta2)
 glmprobit<-glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit"))
 variance<-vcov(glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit")))
 jvariance<-jac%*%variance%*%t(jac)
-std<-diag(sqrt(jvariance))
-View(std)
+std2<-diag(sqrt(jvariance))
+View(std2)
 
-#compute the standard deviation using the bootstrap  #
+#compute the standard deviation of probit model using the bootstrap  #
+X<-as.matrix(cbind(1,X1,X2,X3))
+Y<-as.matrix(Y)
+y<-as.numeric(Y>mean(Y))
 boot<-function(data,k,n){
   aboot<-matrix(0,nrow=k,ncol=4) 
   for (k  in 1:k){
-    bootdata <- data[sample(nrow(data), 10000, replace = TRUE),] 
-    averagex<- apply(bootdata, 2, mean)
-    aboot[k,]<- averagex
-    
+    data<-as.data.frame(cbind(y,X))
+    bootdata <- data[sample(nrow(data), 10000, replace = TRUE),]
+    mlebeta1<-glm(bootdata$y ~ bootdata$X1 + bootdata$X2 +bootdata$X3 ,family=binomial(link="probit"))$coefficients
+    Xmean<-apply(bootdata[,2:5], 2, mean)
+    maginXmean<-dnorm(Xmean %*% t(mlebeta1))%*% mlebeta1
+    aboot[k,]<-t(maginXmean)
   }
   return(aboot)
 }
-
-stdprobit<-apply(boot(meprobit,499,10000),2, sd)
-View(stdprobit)
+stdprobit<-apply(boot(data,499,10000),2, sd)
+#compute the standard deviation using logit model####################
+boot<-function(data,k,n){
+  aboot<-matrix(0,nrow=k,ncol=4) 
+  for (k  in 1:k){
+    data<-as.data.frame(cbind(y,X))
+    bootdata <- data[sample(nrow(data), 10000, replace = TRUE),]
+    mlebeta2<-glm(bootdata$y ~ bootdata$X1 + bootdata$X2 +bootdata$X3 ,family=binomial(link="logit"))$coefficients
+    Xmean<-apply(bootdata[,2:5], 2, mean)
+    maginXmean<-dlogis(Xmean %*% t(mlebeta2))%*% mlebeta2
+    aboot[k,]<-t(maginXmean)
+  }
+  return(aboot) 
+}
 stdlogis<-apply(boot(melogis,499,10000),2,sd)
 View(stdlogis)
+##########compare results between bootstrap and delta method###########
+results<-cbind(std1,stdprobit,std2,stdlogis)
+results
