@@ -239,11 +239,19 @@ maginX<-function(mlebeta2,X = Xmean){
   phi<-dlogis(X %*% t(mlebeta2))%*% mlebeta2
 }
 jac<-jacobian(maginX,mlebeta2)
+I<-diag(x=1, nrow=4, ncol=4)
+jaccal<-function(X,mlebeta2){
+  
+  pdf2<-(dlogis(X %*% t(mlebeta2)))%*%((I-dlogis(X %*% t(mlebeta2))))%*% (I+(1-(2%*%dlogis(X %*% t(mlebeta2)%*% (X%*% t(mlebeta2))))))
+}
+
+jaccal(X,mlebeta2)
 glmprobit<-glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit"))
 variance<-vcov(glm(y ~ X1 + X2 +X3 ,family=binomial(link="logit")))
 jvariance<-jac%*%variance%*%t(jac)
 std2<-diag(sqrt(jvariance))
 View(std2)
+I
 
 #compute the standard deviation of probit model using the bootstrap  #
 X<-as.matrix(cbind(1,X1,X2,X3))
