@@ -6,6 +6,8 @@ rm(list=ls())
 install.packages("bayesm")
 #start the package
 library(bayesm)
+
+#problem1#
 #record the data
 data(margarine)
 data1<- margarine$choicePrice
@@ -50,5 +52,183 @@ View(prob)
 rownames(prob)<-c("Income2.5","Income7.5","Income12.5","Income17.5","Income22.5","Income27.5","Income32.5","Income37.5","Income42.5","Income47.5","Income55","Income67.5","Income87.5","Income130")
 colnames(prob) <- colnames(data1[,3:12])
 View(prob)
-#problem 2#
+table(data$choice)
 
+#problem 2#
+# In the question 2, we apply the conditional logit model#
+# manipulate x by substracting the first column#
+data1<- margarine$choicePrice
+x<-data1[,3:12]- data1[,3]
+x<-as.matrix(x)
+decision<-matrix(0,nrow = 4470,ncol = 10)
+for (i in 1:10) {
+decision[,i]<-cbind(as.numeric(data1$choice==i))
+}
+View(decision)
+logit.loglk <- function (beta, x) {
+ #A<-matrix(t(replicate(4470,beta[2:10])))
+ A<-matrix(rep(beta[2:10],each=4470),nrow=4470,ncol=9)
+ A<-cbind(0,A)
+ v<- x * beta[1] + A # the utilities are relative utilities, indicating that subtraction from reference#
+
+ sum<-rowSums(exp(v))
+ lgprob<-log(exp(v)/sum)
+ lgprobnew<- lgprob * decision
+ loglk<- sum(lgprobnew)
+  return(-loglk)
+}  # finish the loglikelihood#
+
+beta <- rep(-0.5,10) #arbitrary starting parameters
+optimLogit <- optim(beta, logit.loglk, x=x,method = c("BFGS"))
+optimLogit
+logitparameter<-optimLogit$par
+logitparameter
+##check the data withe the r package#
+data1<- margarine$choicePrice
+datanew<-data1[,2:12]
+data("data1", package = "mlogit")
+data1<- mlogit.data(data1, shape = "wide", choice = "choice",alt.levels = 3:12)
+View(colnames(datanew))
+
+#problem set 3, using the multinomial logit model#
+I<-data$Income
+View(I)
+I<- replicate(10, I)
+View(I)
+multilogit<- function(beta,I){
+  A<-matrix(rep(beta[10:18],each=4470),nrow=4470,ncol=9)
+  A<-cbind(0,A)
+  B<- matrix(rep(beta[1:9],each=4470),nrow = 4470,ncol=9)
+  B<-cbind(0,B)
+  V<-I * B + A
+  sum<-rowSums(exp(V))
+  prob<- exp(V)/sum
+  logprob<-log(prob)
+  lgprobnew<- logprob * decision
+  loglk<- sum(lgprobnew)
+  return(-loglk)
+}  # finish the loglik
+
+beta <- rep(-0.5,18) #arbitrary starting parameters
+optimLogit <- optim(beta, multilogit, I=I,method = c("BFGS"))
+multilogitparameter<-optimLogit$par
+multilogitparameter
+
+#problem 4, marginal effect#
+#average marginal effect of the conditional logit model#
+#first we need to extract the constant and replicate the constant#
+A1<-matrix(rep(logitparameter[2:10],each=10),nrow=10,ncol=9)
+A1<-cbind(0,A1)
+data1<- margarine$choicePrice
+x<-data1[,3:12]- data1[,3]
+x<-as.matrix(x)
+xmean<-colMeans(x, na.rm = FALSE, dims = 1)
+View(xmean)
+xmean<-matrix(rep(xmean,each=10),nrow=10, ncol=10) #calculate the average mean of each choie after subtraction of reference#
+View(xmean)
+logitparameter[1]
+vmean<- xmean * logitparameter[1]+ A1 #calculate value of average choice#
+summean<-rowSums(exp(vmean))
+probmean<-exp(vmean)/summean
+View(probmean)
+E<- diag(10)
+mf<- t(probmean) * (E-probmean) * logitparameter[1]
+View(mf)
+# marginal effect of the average for the multinomial logit model#
+#first, we need to calculate the probability#
+multilogitparameter
+A<-matrix(rep(multilogitparameter[10:18],each=10),nrow=4470,ncol=9)
+A<-cbind(0,A)
+B<- matrix(rep(multilogitparameter[1:9],each=10),nrow = 4470,ncol=9)
+B<-cbind(0,B)
+dim(B)
+V<-I * B + A
+View(V)
+P<-exp(V)/rowSums(exp(V))
+dim(P)
+multibeta<-as.vector(c(0,multilogitparameter[1:9]))
+View(multibeta)
+betamean<- as.numeric(P %*% multibeta)
+betamean<-replicate(10,betamean)
+View(betamean)
+dim(betamean)
+mf<- P * (B-betamean)
+dim(mf)
+View(mf)
+averagemf<-colMeans(mf,na.rm = FALSE, dims = 1)
+View(averagemf)
+
+# problem 5 of mix logit model#
+#consider the income level#
+I<-data$Income
+View(I)
+I<- replicate(10, I)
+#consider the relative price specific#
+data1<- margarine$choicePrice
+x<-data1[,3:12] - data1[,3]
+x<-as.matrix(x)
+#consider the decison matrix
+decision<-matrix(0,nrow = 4470,ncol = 10)
+for (i in 1:10) {
+  decision[,i]<-cbind(as.numeric(data1$choice==i))
+}
+View(decision)
+#write the mix logit function#
+mix.logit<- function(beta,x,I){
+  A<-matrix(rep(beta[11:19],each=10),nrow=4470,ncol=9)
+  A<-cbind(0,A)
+  B<- matrix(rep(beta[2:10],each=4470),nrow = 4470,ncol=9)
+  B<-cbind(0,B)
+  V<- x * beta[1]+ I * B + A
+  P<-exp(V)/rowSums(exp(V))
+  lgprob<-log(P)
+  lgprobnew<- lgprob * decision
+  loglk1<- sum(lgprobnew)
+  return(-loglk1)
+}  # finish the loglikelihood#
+
+beta <- rep(-0.5,19) #arbitrary starting parameters
+optimLogit1 <- optim(beta, mix.logit, I=I,x=x,method = c("BFGS"))
+#report the mixparameterf#
+mixparameterf<-optimLogit1$par
+#report the likelihood of the unrestricted model#
+lf<-optimLogit1$value
+# consider the alternative specification, and I will drop the last choice, the first choice is still the reference choice#
+#consider the income level
+I<-data$Income
+Ir<-replicate(9,I)
+#consider the choice specification, now we have 9 choices, and the first choice is still the reference choice
+data1<- margarine$choicePrice
+xr<-data1[,3:11] - data1[,3]
+#consider the decision making matrix#
+decision<-matrix(0,nrow = 4470,ncol = 9)
+for (i in 1:9) {
+  decision[,i]<-cbind(as.numeric(data1$choice==i))
+}
+View(decision)
+#write the mix logig model function#
+mix.logit<- function(beta,xr,Ir){
+  A1<-matrix(rep(beta[10:17],each=10),nrow=4470,ncol=8)
+  A1<-cbind(0,A1)
+  B1<- matrix(rep(beta[2:9],each=4470),nrow = 4470,ncol=8)
+  B1<-cbind(0,B1)
+  dim(B1)
+  V<- xr * beta[1]+Ir * B1 + A1
+  P<-exp(V)/rowSums(exp(V))
+  lgprob<-log(P)
+  lgprobnew<- lgprob * decision
+  loglk2<- sum(lgprobnew)
+  return(-loglk2)
+}  # finish the loglikelihood#
+
+beta <- rep(-0.5,17) #arbitrary starting parameters
+optimLogit2 <- optim(beta, mix.logit, Ir=Ir,xr=xr,method = c("BFGS"))
+#report the parameter of restricted model
+mixparameterr<-optimLogit2$par
+#report the likelihood of the restricted model
+lr<-optimLogit2$value
+#calculate the MTT
+MTT<- 2* (lf-lr)
+View(MTT)
+qchisq(.95, df=1)
+#compare with the result, we reject the null hypothesis#
