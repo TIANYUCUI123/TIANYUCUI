@@ -173,6 +173,7 @@ for (i in 1:10) {
   decision[,i]<-cbind(as.numeric(data1$choice==i))
 }
 View(decision)
+
 #write the mix logit function#
 mix.logit<- function(beta,x,I){
   A<-matrix(rep(beta[11:19],each=10),nrow=4470,ncol=9)
@@ -230,5 +231,5 @@ lr<-optimLogit2$value
 #calculate the MTT
 MTT<- 2* (lf-lr)
 View(MTT)
-qchisq(.95, df=1)
-#compare with the result, we reject the null hypothesis#
+qchisq(.95, df=17)
+#compare with the result, we reject the null hypothesis,this indicates that all chocies need to be specified#
