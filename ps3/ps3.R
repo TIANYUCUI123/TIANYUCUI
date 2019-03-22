@@ -11,6 +11,7 @@ library(bayesm)
 #record the data
 data(margarine)
 data1<- margarine$choicePrice
+colnames(data1)
 data2<- margarine$demos
 data<-merge(data1,data2,by="hhid")
 #average and dispersion of product characteristics#
@@ -56,6 +57,7 @@ colnames(prob) <- colnames(data1[,3:12])
 View(prob)
 table(data$choice)
 
+
 #problem 2#
 # In the question 2, we apply the conditional logit model#
 # manipulate x by substracting the first column#
@@ -84,13 +86,10 @@ beta <- rep(-0.5,10) #arbitrary starting parameters
 optimLogit <- optim(beta, logit.loglk, x=x)
 optimLogit
 logitparameter<-optimLogit$par
-logitparameter
-##check the data withe the r package#
-data1<- margarine$choicePrice
-datanew<-data1[,2:12]
-data("data1", package = "mlogit")
-data1<- mlogit.data(data1, shape = "wide", choice = "choice",alt.levels = 3:12)
-View(colnames(datanew))
+print(logitparameter)
+
+# explaining of the results: if relative price goes up by 1, then utility of choosing alternative compared with product 1 will go down by 6.33. Therefore, I am more willing to choose product 1 to give me higher utility
+
 
 #problem set 3, using the multinomial logit model#
 I<-data$Income
@@ -115,6 +114,9 @@ beta <- rep(0,18) #arbitrary starting parameters
 optimLogit <- optim(beta, multilogit, I=I)
 multilogitparameter<-optimLogit$par
 print(multilogitparameter)
+
+# explaining the coeffeicient: we figure out the betaj are all negative. This indicates that if the price of all alternatives go up, then the relative utility of choosing the alternative will go down. Therefore, I am more willing to choose product1 compared with the relative
+
 
 #problem 4, marginal effect#
 #average marginal effect of the conditional logit model#
