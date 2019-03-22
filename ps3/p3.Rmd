@@ -1,3 +1,16 @@
+---
+title: "ps3"
+author: "TIANYUCUI"
+date: "March 21, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r setup, include=FALSE}
 # clear console# 
 cat("\014") 
 # clear workspace#
@@ -6,7 +19,6 @@ rm(list=ls())
 install.packages("bayesm")
 #start the package
 library(bayesm)
-
 #problem1#
 #record the data
 data(margarine)
@@ -56,6 +68,11 @@ colnames(prob) <- colnames(data1[,3:12])
 View(prob)
 table(data$choice)
 
+
+```
+
+
+```{r setup, include=FALSE}
 #problem 2#
 # In the question 2, we apply the conditional logit model#
 # manipulate x by substracting the first column#
@@ -114,8 +131,11 @@ multilogit<- function(beta,I){
 beta <- rep(0,18) #arbitrary starting parameters
 optimLogit <- optim(beta, multilogit, I=I)
 multilogitparameter<-optimLogit$par
-print(multilogitparameter)
+multilogitparameter
+```
 
+
+```{r setup, include=FALSE}
 #problem 4, marginal effect#
 #average marginal effect of the conditional logit model#
 #first we need to extract the constant and replicate the constant#
@@ -155,11 +175,11 @@ betamean<-replicate(10,betamean)
 View(betamean)
 dim(betamean)
 mf<- P * (B-betamean)
-dim(mf)
-View(mf)
 averagemf<-colMeans(mf,na.rm = FALSE, dims = 1)
-View(averagemf)
+print(averagemf)
+```
 
+```{r setup, include=FALSE}
 # problem 5 of mix logit model#
 #consider the income level#
 I<-data$Income
@@ -236,3 +256,5 @@ MTT<- 2* (lf-lr)
 print(MTT)
 qchisq(.95, df=17)
 #compare with the result, we reject the null hypothesis,this indicates that all chocies need to be specified#
+
+```
