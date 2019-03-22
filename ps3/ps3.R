@@ -114,7 +114,7 @@ optimLogit <- optim(beta, multilogit, I=I)
 multilogitparameter<-optimLogit$par
 print(multilogitparameter)
 
-# explaining the coeffeicient: we figure out the betaj are all negative. This indicates that if the price of all alternatives go up, then the relative utility of choosing the alternative will go down. Therefore, I am more willing to choose product1 compared with the relative
+# explaining the coeffeicient: we figure out the betaj is all negative, so which means that if income goes up, relative utilities of alternative will go down, and individual is more willing to choose the product 1
 
 
 #problem 4, marginal effect#
