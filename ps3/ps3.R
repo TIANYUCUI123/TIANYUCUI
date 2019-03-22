@@ -55,7 +55,6 @@ View(prob)
 rownames(prob)<-c("Income2.5","Income7.5","Income12.5","Income17.5","Income22.5","Income27.5","Income32.5","Income37.5","Income42.5","Income47.5","Income55","Income67.5","Income87.5","Income130")
 colnames(prob) <- colnames(data1[,3:12])
 View(prob)
-table(data$choice)
 
 
 #problem 2#
