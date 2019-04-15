@@ -11,8 +11,14 @@ library(bayesm)
 #record the data
 data(margarine)
 data1<- margarine$choicePrice
+install.packages("csv")
+library(csv)
+write.csv(data1, "C:/Users/cuiti/Desktop/data1.csv")
 colnames(data1)
+unique(data1$hhid)
+length(unique(data1$hhid))
 data2<- margarine$demos
+write.csv(data2, "C:/Users/cuiti/Desktop/data2.csv")
 data<-merge(data1,data2,by="hhid")
 #average and dispersion of product characteristics#
 average<-apply(data1[,3:12],2,mean)
