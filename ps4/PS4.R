@@ -158,4 +158,13 @@ modelcheck3<-plm(LOGWAGE~EDUC+POTEXPER,data= dataPanel, model = "between")
 modelcheck3$vcov[2:3,2:3]
 modelcheck4<-plm(LOGWAGE~EDUC+POTEXPER,data= dataPanel, model = "fd")
 modelcheck4$vcov[2:3,2:3]
-#we figure out that the standard error of the first difference and between estimator are the same#
+#we figure out that the standard error of the first difference and between estimator are the same#<-data[order(data$PERSONID),]
+X1<-c( "EDUC","POTEXPER")
+X <- as.matrix(data[X1])# find the X matrix#
+XX<-solve(t(X)%*% X)
+residual<-modelcheck2$residuals # find the residule of the within estimation#
+A<-t(X) %*% diag(residual)^2%*% X
+# we search online that use the huber white standard error to revise the standard ols se
+new_std<-XX %*% A %*% XX
+print(diag(sqrt(new_std)))
+
