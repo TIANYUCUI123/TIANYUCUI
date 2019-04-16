@@ -2,6 +2,8 @@
 clear all
 set more off, perm
 set scrollbufsize 2000000
+****set working directory***
+cd "C:\Users\cuiti\Master Study\Second Semester\econometrics\TIANYUCUI\ps5"
 ***set the observation***
 set obs 10000
 *****exercise1: generate the variables to prepare for the regression*****
@@ -18,6 +20,24 @@ tab Y_dum
 
 ****exercise 2: ols regression******
  correlate Y X1
+ *the correlation of Y and X is 0.1416
+ display 0.1416-1.2
  ***do the regression
  reg Y X1 X2 X3
+ 
 
+ *****exercise 3&4: write the probit model and logit model****
+ 
+probit  Y_dum  X1 X2 X3
+logit Y_dum X1 X2 X3 
+
+*****calculate the marginal effeccts of probit model and logit model****
+probit  Y_dum  X1 X2 X3
+quietly probit $ylist $xlist
+margins, dydx(*) atmeans
+margins, dydx(*)
+
+logit Y_dum X1 X2 X3 
+quietly logit $ylist $xlist
+margins, dydx(*) atmeans
+margins, dydx(*)

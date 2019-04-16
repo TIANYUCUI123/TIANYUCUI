@@ -17,18 +17,21 @@ tabulate TIMETRND LOGWAGE if PERSONID == 1333
 
 *Exercise 2*
 *Random effect model
-xtreg logwage educ potexper, re
+xtreg LOGWAGE EDUC POTEXPER, re
 
 *Exercise 3* 
 ******************Fixed effect model******************
 *Between Estimator 
-xtreg logwage educ potexper,be 
+xtreg LOGWAGE EDUC POTEXPER,be 
 *Within Estimator 
-xtreg logwage educ potexper,fe
+xtreg LOGWAGE EDUC POTEXPER,fe
 *As we take the first difference in Stata, the default setting is to take the difference for balanced data-
-*for example when personid=1, Stata only take difference between t=5 and t=6, and omit other timetrend. 
-gen logwage_D = D.logwage
-gen educ_D = D.educ
-gen potexper_D = D.potexper
+*for example when personid=1, Stata only take difference between t=5 and t=6, and omit other timetrend. Therefore, 
+*we use the command xtsset to rearrange the data
+xtset PERSONID t
+gen logwage_D = D.LOGWAGE
+gen educ_D = D.EDUC
+gen potexper_D = D.POTEXPER
 xtreg logwage_D educ_D potexper_D, fe
+
 
