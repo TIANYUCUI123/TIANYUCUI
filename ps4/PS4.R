@@ -167,4 +167,28 @@ A<-t(X) %*% diag(residual)^2%*% X
 # we search online that use the huber white standard error to revise the standard ols se
 new_std<-XX %*% A %*% XX
 print(diag(sqrt(new_std)))
+# install the deplyr  package
+install.packages("dplyr")
+library(dplyr)
+betaboot<-matrix(0,nrow=49,ncol = 6)
+for (k  in 1:49){
+    pid<-sample(unique(data$PERSONID),100)
+   
+    boot_sample<-data.frame()
+    for (n in 1:100){
+      boot_sample<- rbind(boot_sample,filter(data,PERSONID==pid[n]))
+    }
+  
+#fixed_effect_model_alpha#
+alpha<-lm(LOGWAGE~-1+EDUC+POTEXPER+factor(PERSONID),data = boot_sample)$coefficients
+alpha<-alpha[-c(1,2)]
+# subsetting the invariant variables#
+invariant<-c("PERSONID", "ABILITY","MOTHERED","FATHERED","BRKNHOME","SIBLINGS")
+boot_invariant <- as.data.frame(boot_sample[invariant])
+boot_invariant<-unique(boot_invariant)
 
+# run  the fixed effect regression#
+betaboot[k,]<-lm(alpha~boot_invariant$ABILITY+boot_invariant$MOTHERED+boot_invariant$FATHERED+boot_invariant$BRKNHOME+boot_invariant$SIBLINGS)$coefficients
+}
+sdboot<-apply(betaboot, 2, sd)
+print(sdboot)
